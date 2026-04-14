@@ -8,6 +8,7 @@ export async function GET(
 ) {
   const { id } = await params;
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
 
   const { data, error } = await supabase
     .from("messages")
@@ -28,6 +29,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -69,6 +71,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

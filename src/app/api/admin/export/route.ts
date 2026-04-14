@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 503 });
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

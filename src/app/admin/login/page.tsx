@@ -19,6 +19,12 @@ export default function AdminLogin() {
     const email = fd.get("email") as string;
     const password = fd.get("password") as string;
 
+    if (!supabase) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
