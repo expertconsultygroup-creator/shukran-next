@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant light-mode (&:is(.light-mode *));
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--white);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--gold);
+
+  --color-card: var(--surface);
+  --color-card-foreground: var(--white);
+  --color-card-border: var(--border);
+
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--white);
+  --color-popover-border: var(--border);
+
+  --color-primary: var(--gold);
+  --color-primary-foreground: var(--bg-deep);
+  --color-primary-border: var(--gold-dark);
+
+  --color-secondary: var(--surface-2);
+  --color-secondary-foreground: var(--white);
+  --color-secondary-border: var(--border);
+
+  --color-muted: var(--surface-2);
+  --color-muted-foreground: var(--muted);
+  --color-muted-border: var(--border);
+
+  --color-accent: var(--gold-dim);
+  --color-accent-foreground: var(--gold);
+  --color-accent-border: var(--gold);
+
+  --color-destructive: var(--red);
+  --color-destructive-foreground: var(--white);
+  --color-destructive-border: var(--red-dark);
+
+  --color-chart-1: var(--gold);
+  --color-chart-2: var(--green);
+  --color-chart-3: var(--sea);
+  --color-chart-4: var(--desert);
+  --color-chart-5: var(--camel);
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --bg:           #05101E;
+  --bg-deep:      #03080F;
+  --surface:      #0A1E34;
+  --surface-2:    #0F2540;
+  --border:       #1A3A5C;
+
+  --gold:         #CBA344;
+  --gold-light:   #D7BC6D;
+  --gold-dark:    #B68A35;
+  --gold-subtle:  #F2ECCF;
+  --gold-dim:     rgba(203,163,68,0.15);
+  --gold-glow:    rgba(203,163,68,0.30);
+
+  --green:        #3F8E50;
+  --green-dark:   #2F663C;
+  --green-light:  #4A9D5C;
+  --green-dim:    rgba(63,142,80,0.18);
+
+  --red:          #D83731;
+  --red-light:    #F47A75;
+  --red-dark:     #B02A25;
+  --red-dim:      rgba(216,55,49,0.18);
+
+  --sea:          #0090D4;
+  --sea-light:    #2CCAFF;
+  --sea-dim:      rgba(0,144,212,0.18);
+
+  --camel:        #F8C027;
+  --desert:       #EB5F24;
+  --desert-dim:   rgba(235,95,36,0.15);
+
+  --white:        #F0F4FF;
+  --muted:        #7A9BB5;
+  --muted-light:  #A8C0D8;
+
+  --glow-gold:    0 0 28px rgba(203,163,68,0.35), 0 0 60px rgba(203,163,68,0.12);
+  --glow-green:   0 0 18px rgba(63,142,80,0.40);
+  --glow-red:     0 0 18px rgba(216,55,49,0.35);
+  --glow-sea:     0 0 18px rgba(0,144,212,0.35);
+
+  --card-glass:       rgba(10,30,52,0.88);
+  --card-glass-alt:   rgba(10,30,52,0.80);
+  --card-glass-light: rgba(10,30,52,0.60);
+  --card-glass-deep:  rgba(10,30,52,0.92);
+  --input-glass:      rgba(10,30,52,0.70);
+  --overlay-glass:    rgba(5,16,30,0.85);
+  --navbar-glass:     rgba(5,16,30,0.90);
+
+  --text-on-card:     #F0F4FF;
+  --text-on-input:    #F0F4FF;
+
+  --app-font-sans: 'Cairo', sans-serif;
+  --app-font-serif: 'Noto Naskh Arabic', serif;
+  --app-font-mono: 'Cinzel', 'Courier New', monospace;
+  --radius: .5rem;
+}
+
+.light-mode {
+  --bg:           #F5F1E3;
+  --bg-deep:      #EDE7CE;
+  --surface:      #FFFDF6;
+  --surface-2:    #F7F2E2;
+  --border:       #D4C07A;
+  --white:        #1B1D21;
+  --muted:        #4A5060;
+  --muted-light:  #606470;
+
+  --card-glass:       rgba(255,253,246,0.97);
+  --card-glass-alt:   rgba(255,253,246,0.92);
+  --card-glass-light: rgba(255,253,246,0.85);
+  --card-glass-deep:  rgba(255,253,246,0.99);
+  --input-glass:      rgba(237,231,206,0.60);
+  --overlay-glass:    rgba(245,241,227,0.96);
+  --navbar-glass:     rgba(245,241,227,0.95);
+
+  --text-on-card:     #1B1D21;
+  --text-on-input:    #1B1D21;
+
+  --gold-dim:     rgba(203,163,68,0.22);
+  --gold-glow:    rgba(203,163,68,0.18);
+  --glow-gold:    0 0 16px rgba(203,163,68,0.22), 0 0 36px rgba(203,163,68,0.08);
+}
+
+*, *::before, *::after {
+  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+.light-mode {
+  color-scheme: light;
+}
+
+.light-mode [style*="var(--card-glass)"],
+.light-mode .backdrop-blur-md,
+.light-mode .backdrop-blur-xl,
+.light-mode .backdrop-blur-\[16px\],
+.light-mode .backdrop-blur-\[20px\] {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder,
+.light-mode select {
+  color: var(--muted);
+}
+
+.light-mode select option {
+  background-color: var(--surface);
+  color: var(--white);
+}
+
+.light-mode .font-mono.bg-black,
+.light-mode [class*="terminal"],
+.light-mode pre,
+.light-mode code {
+  background-color: #111827 !important;
+  color: #e2e8f0 !important;
+}
