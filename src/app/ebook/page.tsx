@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, BookOpen, Printer, ChevronRight, ChevronLeft, X } from "lucide-react";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
@@ -8,16 +8,50 @@ import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 export default function EBook() {
   const [isReaderOpen, setIsReaderOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const totalPages = 312;
+  const [stats, setStats] = useState({ totalMessages: 0, totalPoems: 0, totalVideos: 0 });
+  const [readerMessages, setReaderMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data) => {
+        setStats({
+          totalMessages: data.totalMessages || 0,
+          totalPoems: data.totalPoems || 0,
+          totalVideos: data.totalVideos || 0,
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  // Fetch messages for the reader when opened
+  useEffect(() => {
+    if (isReaderOpen && readerMessages.length === 0) {
+      fetch("/api/messages?limit=50&status=approved")
+        .then((r) => r.json())
+        .then((data) => setReaderMessages(data.messages || []))
+        .catch(() => {});
+    }
+  }, [isReaderOpen]);
+
+  // Estimate pages: ~3 messages per page + intro pages
+  const totalPages = Math.max(20, Math.ceil(stats.totalMessages / 3) + 12);
 
   const chapters = [
     { title: "المقدمة", page: 1 },
     { title: "تاريخ المنصة", page: 12 },
     { title: "رسائل الشكر (مواطنون)", page: 24 },
-    { title: "رسائل الشكر (مقيمون)", page: 128 },
-    { title: "القصائد الوطنية", page: 240 },
-    { title: "الرعاة والشركاء", page: 300 }
+    { title: "رسائل الشكر (مقيمون)", page: Math.floor(totalPages * 0.4) },
+    { title: "القصائد الوطنية", page: Math.floor(totalPages * 0.75) },
+    { title: "الرعاة والشركاء", page: Math.floor(totalPages * 0.95) },
   ];
+
+  // Get messages for current reader page
+  const getPageMessages = () => {
+    if (page <= 1 || readerMessages.length === 0) return [];
+    const startIdx = ((page - 2) * 3) % readerMessages.length;
+    return readerMessages.slice(startIdx, startIdx + 3);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--bg-deep)] relative overflow-hidden">
@@ -99,10 +133,10 @@ export default function EBook() {
           <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--gold)] to-transparent opacity-50"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x-0 md:divide-x md:divide-x-reverse divide-[var(--border)]">
             {[
-              { label: "صفحة", value: "312" },
-              { label: "رسالة موثقة", value: "847,293" },
-              { label: "قصيدة", value: "312" },
-              { label: "وسيلة إعلامية", value: "48" }
+              { label: "صفحة", value: totalPages.toLocaleString() },
+              { label: "رسالة موثقة", value: stats.totalMessages.toLocaleString() },
+              { label: "قصيدة", value: stats.totalPoems.toLocaleString() },
+              { label: "وسيلة إعلامية", value: stats.totalVideos.toLocaleString() }
             ].map((stat, i) => (
               <div key={i} className="px-4">
                 <div className="font-mono text-4xl text-[var(--gold)] font-bold mb-2">{stat.value}</div>
@@ -155,15 +189,11 @@ export default function EBook() {
 
             <div className="mt-8 bg-[var(--surface)] rounded-xl p-6 flex items-center gap-6 border border-[var(--border)]">
               <div className="w-24 h-24 bg-white rounded flex items-center justify-center shrink-0">
-                {/* Mock QR */}
+                {/* QR placeholder */}
                 <div className="grid grid-cols-5 grid-rows-5 gap-1 w-16 h-16">
                   {Array.from({length: 25}).map((_, i) => (
-                    <div key={i} className={`bg-black ${Math.random() > 0.5 ? 'opacity-100' : 'opacity-0'}`}></div>
+                    <div key={i} className={`bg-black ${[0,1,3,4,5,9,10,14,15,19,20,21,23,24].includes(i) ? 'opacity-100' : 'opacity-0'}`}></div>
                   ))}
-                  {/* QR Corners */}
-                  <div className="col-start-1 row-start-1 col-span-2 row-span-2 border-4 border-black"></div>
-                  <div className="col-start-4 row-start-1 col-span-2 row-span-2 border-4 border-black"></div>
-                  <div className="col-start-1 row-start-4 col-span-2 row-span-2 border-4 border-black"></div>
                 </div>
               </div>
               <div>
@@ -229,14 +259,16 @@ export default function EBook() {
                   </div>
                 ) : (
                   <div>
-                     <h3 className="font-sans font-bold text-2xl text-[#B68A35] border-b border-[#E6D7A2] pb-4 mb-8">رسائل الشكر - {page * 10}</h3>
+                     <h3 className="font-sans font-bold text-2xl text-[#B68A35] border-b border-[#E6D7A2] pb-4 mb-8">رسائل الشكر</h3>
                      <div className="space-y-10">
-                       {[1,2,3].map(i => (
-                         <div key={i}>
-                           <div className="font-serif text-xl leading-[2.2] mb-3">"أبطال الوطن وحماته، عرفانكم في قلوبنا إلى الأبد، شكراً من صميم القلب على كل ما تقدمونه من تضحيات."</div>
-                           <div className="font-sans text-sm text-[#797E86] font-bold">— محمد الهاشمي، مواطن</div>
+                       {getPageMessages().length > 0 ? getPageMessages().map((msg: any, i: number) => (
+                         <div key={msg.id || i}>
+                           <div className="font-serif text-xl leading-[2.2] mb-3">&ldquo;{msg.text}&rdquo;</div>
+                           <div className="font-sans text-sm text-[#797E86] font-bold">— {msg.name}، {msg.category}</div>
                          </div>
-                       ))}
+                       )) : (
+                         <div className="text-center text-[#797E86] py-12">جاري تحميل الرسائل...</div>
+                       )}
                      </div>
                   </div>
                 )}

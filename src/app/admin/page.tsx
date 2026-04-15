@@ -7,47 +7,57 @@ import {
   ResponsiveContainer, PieChart as RechartsPie, Pie, Cell,
 } from "recharts";
 
-const categoryData = [
-  { name: "مواطن", value: 45, color: "var(--gold)" },
-  { name: "مقيم", value: 30, color: "var(--green)" },
-  { name: "طالب", value: 15, color: "var(--sea)" },
-  { name: "جهة", value: 10, color: "var(--desert)" },
-];
+const catColors = ["var(--gold)", "var(--green)", "var(--sea)", "var(--desert)", "var(--camel)", "var(--red)"];
 
 export default function AdminOverview() {
   const [kpis, setKpis] = useState({
     total: 0,
     pending: 0,
     rejected: 0,
+    todayMessages: 0,
   });
   const [dailyData, setDailyData] = useState<{ label: string; count: number }[]>([]);
+  const [categoryData, setCategoryData] = useState<{ name: string; value: number; color: string }[]>([]);
 
   useEffect(() => {
-    // Fetch counter data
-    fetch("/api/messages/count")
+    // Fetch all stats from the unified endpoint
+    fetch("/api/stats")
       .then((r) => r.json())
       .then((data) => {
         setKpis({
-          total: data.total || 0,
-          pending: data.pending || 0,
-          rejected: data.rejected || 0,
+          total: data.totalMessages || 0,
+          pending: data.pendingMessages || 0,
+          rejected: data.rejectedMessages || 0,
+          todayMessages: data.dailyStats?.[0]?.message_count || 0,
         });
+
+        // Category breakdown from real data
+        if (data.categoryBreakdown?.length > 0) {
+          setCategoryData(
+            data.categoryBreakdown.map((c: any, i: number) => ({
+              name: c.name,
+              value: c.value,
+              color: catColors[i % catColors.length],
+            }))
+          );
+        }
+
+        // Daily stats from real data
+        if (data.dailyStats?.length > 0) {
+          setDailyData(
+            [...data.dailyStats].reverse().map((s: any) => ({
+              label: new Date(s.date).toLocaleDateString("ar-AE", { weekday: "short" }),
+              count: s.message_count,
+            }))
+          );
+        }
       })
       .catch(() => {});
-
-    // Generate mock daily data (in production, this would come from daily_stats table)
-    const days = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
-    setDailyData(
-      days.map((label) => ({
-        label,
-        count: Math.floor(Math.random() * 2000) + 2500,
-      }))
-    );
   }, []);
 
   const kpiCards = [
-    { label: "إجمالي الرسائل", value: kpis.total.toLocaleString(), trend: "+12%", color: "var(--green)" },
-    { label: "رسائل اليوم", value: "3,421", trend: "+8%", color: "var(--green)" },
+    { label: "إجمالي الرسائل", value: kpis.total.toLocaleString(), trend: "", color: "var(--gold)" },
+    { label: "رسائل اليوم", value: kpis.todayMessages.toLocaleString(), trend: "", color: "var(--green)" },
     { label: "في انتظار المراجعة", value: kpis.pending.toLocaleString(), trend: "⚠️", color: "var(--camel)" },
     { label: "رسائل مرفوضة", value: kpis.rejected.toLocaleString(), trend: "🔴", color: "var(--red)" },
   ];
@@ -76,7 +86,7 @@ export default function AdminOverview() {
             <div className="text-[var(--muted-light)] text-sm font-bold mb-2">{kpi.label}</div>
             <div className="flex items-end justify-between">
               <div className="font-mono text-3xl font-bold text-[var(--gold)]">{kpi.value}</div>
-              <div className="font-sans font-bold text-sm" style={{ color: kpi.color }}>{kpi.trend}</div>
+              {kpi.trend && <div className="font-sans font-bold text-sm" style={{ color: kpi.color }}>{kpi.trend}</div>}
             </div>
           </div>
         ))}
@@ -85,35 +95,43 @@ export default function AdminOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 h-[350px]">
           <h3 className="font-bold text-[var(--white)] mb-6">الرسائل اليومية — آخر 7 أيام</h3>
-          <ResponsiveContainer width="100%" height="80%">
-            <AreaChart data={dailyData}>
-              <defs>
-                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--gold)" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="var(--gold)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-              <XAxis dataKey="label" stroke="var(--muted)" tick={{ fontSize: 12 }} />
-              <YAxis stroke="var(--muted)" tick={{ fontSize: 12 }} />
-              <Tooltip contentStyle={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }} />
-              <Area type="monotone" dataKey="count" stroke="var(--gold)" fillOpacity={1} fill="url(#colorCount)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          {dailyData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="80%">
+              <AreaChart data={dailyData}>
+                <defs>
+                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--gold)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--gold)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="label" stroke="var(--muted)" tick={{ fontSize: 12 }} />
+                <YAxis stroke="var(--muted)" tick={{ fontSize: 12 }} />
+                <Tooltip contentStyle={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }} />
+                <Area type="monotone" dataKey="count" stroke="var(--gold)" fillOpacity={1} fill="url(#colorCount)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[80%] flex items-center justify-center text-[var(--muted)]">لا توجد بيانات يومية بعد</div>
+          )}
         </div>
 
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 h-[350px]">
           <h3 className="font-bold text-[var(--white)] mb-6">تصنيف المرسلين</h3>
-          <ResponsiveContainer width="100%" height="80%">
-            <RechartsPie>
-              <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }} />
-            </RechartsPie>
-          </ResponsiveContainer>
+          {categoryData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="80%">
+              <RechartsPie>
+                <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: "var(--surface-2)", borderColor: "var(--border)" }} />
+              </RechartsPie>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[80%] flex items-center justify-center text-[var(--muted)]">لا توجد بيانات بعد</div>
+          )}
         </div>
       </div>
 

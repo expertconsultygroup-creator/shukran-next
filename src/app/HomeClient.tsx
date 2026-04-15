@@ -6,23 +6,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { MessageCard } from "@/components/messages/MessageCard";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useEffect, useState } from "react";
+import { COUNTER_GOAL } from "@/lib/constants";
+import { useLiveCount } from "@/hooks/use-live-count";
 
-const chartDataDaily = [
-  { date: "2025-10-17", count: 2841, label: "17 أكتوبر" },
-  { date: "2025-10-18", count: 3102, label: "18 أكتوبر" },
-  { date: "2025-10-19", count: 2998, label: "19 أكتوبر" },
-  { date: "2025-10-20", count: 3421, label: "20 أكتوبر" },
-  { date: "2025-10-21", count: 4102, label: "21 أكتوبر" },
-  { date: "2025-10-22", count: 3876, label: "22 أكتوبر" },
-  { date: "2025-10-23", count: 4289, label: "23 أكتوبر" },
-];
-
-const nationalities = [
-  { name: "إماراتيون", value: 48.7, color: "#CBA344" },
-  { name: "مقيمون عرب", value: 22.4, color: "#3F8E50" },
-  { name: "مقيمون آسيا", value: 18.9, color: "#0090D4" },
-  { name: "أخرى", value: 10.0, color: "#7A9BB5" },
-];
+const natColors = ["#CBA344", "#3F8E50", "#0090D4", "#7A9BB5", "#D83731", "#9EA2A9"];
 
 interface HomeClientProps {
   initialMessages: any[];
@@ -30,6 +18,52 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ initialMessages, initialCount }: HomeClientProps) {
+  const [messages, setMessages] = useState(initialMessages);
+  const [stats, setStats] = useState({ totalMessages: 0, totalCountries: 0, totalVideos: 0, totalPoems: 0 });
+  const [categoryBreakdown, setCategoryBreakdown] = useState<{ name: string; value: number }[]>([]);
+  const [dailyData, setDailyData] = useState<{ label: string; count: number }[]>([]);
+  const liveCount = useLiveCount();
+
+  // Use live count if available, otherwise fall back to fetched stats, then initialCount
+  const messageCount = liveCount > 0 ? liveCount : (stats.totalMessages > 0 ? stats.totalMessages : initialCount);
+
+  useEffect(() => {
+    // Fetch latest messages if none passed
+    if (messages.length === 0) {
+      fetch("/api/messages?limit=6&status=approved")
+        .then((r) => r.json())
+        .then((d) => setMessages(d.messages || []))
+        .catch(() => {});
+    }
+
+    // Fetch aggregated stats
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((d) => {
+        setStats({
+          totalMessages: d.totalMessages || 0,
+          totalCountries: d.totalCountries || 0,
+          totalVideos: d.totalVideos || 0,
+          totalPoems: d.totalPoems || 0,
+        });
+        setCategoryBreakdown(
+          (d.categoryBreakdown || []).map((c: any, i: number) => ({
+            ...c,
+            color: natColors[i % natColors.length],
+          }))
+        );
+        if (d.dailyStats?.length > 0) {
+          setDailyData(
+            [...d.dailyStats].reverse().map((s: any) => ({
+              label: new Date(s.date).toLocaleDateString("ar-AE", { day: "numeric", month: "short" }),
+              count: s.message_count,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* HERO SECTION */}
@@ -86,13 +120,13 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
 
             <div className="mt-12 w-full max-w-2xl mx-auto">
               <div className="flex justify-between text-sm mb-3 font-sans font-bold text-[var(--muted-light)]">
-                <span>{initialCount.toLocaleString()} موثق</span>
-                <span className="text-[var(--gold)]">الهدف: 1,000,000</span>
+                <span>{messageCount.toLocaleString()} موثق</span>
+                <span className="text-[var(--gold)]">الهدف: {COUNTER_GOAL.toLocaleString()}</span>
               </div>
               <div className="h-3 w-full bg-[var(--surface-2)] rounded-full overflow-hidden border border-[var(--border)] relative">
                 <div
                   className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-[var(--gold-dark)] to-[var(--gold-light)] rounded-full"
-                  style={{ width: `${Math.min((initialCount / 1000000) * 100, 100)}%` }}
+                  style={{ width: `${Math.min((messageCount / COUNTER_GOAL) * 100, 100)}%` }}
                 >
                   <div className="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]" />
                 </div>
@@ -121,10 +155,10 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: "رسالة شكر", value: initialCount.toLocaleString() },
-              { label: "دولة مشاركة", value: "124" },
-              { label: "فيديو موثق", value: "48" },
-              { label: "قصيدة وطنية", value: "312" }
+              { label: "رسالة شكر", value: messageCount.toLocaleString() },
+              { label: "دولة مشاركة", value: stats.totalCountries.toLocaleString() },
+              { label: "فيديو موثق", value: stats.totalVideos.toLocaleString() },
+              { label: "قصيدة وطنية", value: stats.totalPoems.toLocaleString() }
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -157,9 +191,9 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {initialMessages.slice(0, 6).map((msg: any, i: number) => (
+            {messages.slice(0, 6).map((msg: any, i: number) => (
               <motion.div
-                key={msg.id}
+                key={msg.id || i}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -189,24 +223,25 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-6 h-[280px] sm:h-[400px]">
               <h3 className="font-sans font-bold text-lg text-[var(--white)] mb-6">الرسائل اليومية</h3>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartDataDaily}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--gold)" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="var(--gold)" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="label" stroke="var(--muted)" tick={{fill: 'var(--muted)', fontSize: 12}} />
-                  <YAxis stroke="var(--muted)" tick={{fill: 'var(--muted)', fontSize: 12}} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--gold-dim)', borderRadius: '8px' }}
-                    itemStyle={{ color: 'var(--gold)' }}
-                  />
-                  <Area type="monotone" dataKey="count" stroke="var(--gold)" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              {dailyData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="80%">
+                  <AreaChart data={dailyData}>
+                    <defs>
+                      <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--gold)" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="var(--gold)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                    <XAxis dataKey="label" stroke="var(--muted)" tick={{fill: 'var(--muted)', fontSize: 12}} />
+                    <YAxis stroke="var(--muted)" tick={{fill: 'var(--muted)', fontSize: 12}} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--gold-dim)', borderRadius: '8px' }} itemStyle={{ color: 'var(--gold)' }} />
+                    <Area type="monotone" dataKey="count" stroke="var(--gold)" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-[var(--muted)]">لا توجد بيانات يومية بعد</div>
+              )}
             </div>
 
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-6 flex flex-col justify-center items-center h-[280px] sm:h-[400px]">
@@ -217,18 +252,20 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
                 <div className="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-l-[var(--sea)] transform -rotate-[15deg]"></div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-[var(--white)]">124</div>
+                  <div className="text-3xl font-bold text-[var(--white)]">{stats.totalCountries}</div>
                   <div className="text-xs text-[var(--muted)]">دولة</div>
                 </div>
               </div>
 
               <div className="flex gap-4 mt-8 flex-wrap justify-center w-full">
-                {nationalities.map(n => (
-                  <div key={n.name} className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: n.color }}></span>
-                    <span className="text-sm text-[var(--muted-light)]">{n.name} {n.value}%</span>
+                {categoryBreakdown.length > 0 ? categoryBreakdown.map((c: any) => (
+                  <div key={c.name} className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }}></span>
+                    <span className="text-sm text-[var(--muted-light)]">{c.name} {c.value}%</span>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-sm text-[var(--muted)]">جاري التحميل...</div>
+                )}
               </div>
             </div>
           </div>

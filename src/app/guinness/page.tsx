@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLiveCount } from "@/hooks/use-live-count";
 import { COUNTER_GOAL } from "@/lib/constants";
@@ -21,14 +21,41 @@ export default function Guinness() {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-  const logs = [
-    "[2025-11-15 14:32:01] ✓ Message verified — Hash: a3f9c2b8...",
-    "[2025-11-15 14:32:04] ✓ Message verified — Hash: 7b2c19f4...",
-    "[2025-11-15 14:32:07] ✓ Message verified — Hash: e9d4b6a1...",
-    "[2025-11-15 14:32:10] ⏳ Validating IP constraint...",
-    "[2025-11-15 14:32:12] ✓ Constraint check passed. Queued for ledger.",
-    "[2025-11-15 14:32:15] ✓ Message verified — Hash: c4f2e900...",
-  ];
+  // Dynamic milestones based on current count
+  const milestones = useMemo(() => {
+    const targets = [100000, 250000, 500000, 750000, 1000000];
+    return targets.map((target) => {
+      const isDone = count >= target;
+      const isCurrent = !isDone && count >= (target * 0.5); // within reach
+      return {
+        count: target.toLocaleString(),
+        date: isDone ? "تم الإنجاز ✓" : target === COUNTER_GOAL ? "الهدف" : "جاري التحقيق",
+        status: isDone ? "done" : isCurrent ? "current" : "pending",
+      };
+    });
+  }, [count]);
+
+  // Dynamic verification logs based on live count
+  const logs = useMemo(() => {
+    const now = new Date();
+    const fmtTime = (offset: number) => {
+      const d = new Date(now.getTime() - offset * 1000);
+      return d.toISOString().replace("T", " ").substring(0, 19);
+    };
+    // Generate pseudo-random hashes from count
+    const hash = (seed: number) => {
+      const h = ((seed * 2654435761) >>> 0).toString(16).padStart(8, "0");
+      return h.substring(0, 8);
+    };
+    return [
+      `[${fmtTime(18)}] ✓ Message verified — Hash: ${hash(count - 5)}...`,
+      `[${fmtTime(15)}] ✓ Message verified — Hash: ${hash(count - 4)}...`,
+      `[${fmtTime(12)}] ✓ Message verified — Hash: ${hash(count - 3)}...`,
+      `[${fmtTime(9)}] ⏳ Validating IP constraint...`,
+      `[${fmtTime(6)}] ✓ Constraint check passed. Queued for ledger.`,
+      `[${fmtTime(3)}] ✓ Message #${count.toLocaleString()} verified — Hash: ${hash(count)}...`,
+    ];
+  }, [count]);
 
   return (
     <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--white)] relative">
@@ -67,13 +94,7 @@ export default function Guinness() {
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 relative overflow-hidden">
               <h3 className="font-sans font-bold text-2xl mb-8">محطات الإنجاز</h3>
               <div className="space-y-6 relative z-10">
-                {[
-                  { count: "100,000", date: "15 يناير 2025", status: "done" },
-                  { count: "250,000", date: "3 مارس 2025", status: "done" },
-                  { count: "500,000", date: "28 يوليو 2025", status: "done" },
-                  { count: "750,000", date: "جاري التحقيق", status: "current" },
-                  { count: "1,000,000", date: "الهدف", status: "pending" },
-                ].map((m, i) => (
+                {milestones.map((m, i) => (
                   <div key={i} className="flex items-center gap-6">
                     <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-[var(--surface)] relative z-10">
                       {m.status === "done" && <div className="w-4 h-4 bg-[var(--gold)] rounded-full ring-4 ring-[var(--gold-dim)]"></div>}

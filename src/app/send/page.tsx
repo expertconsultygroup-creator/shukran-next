@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, CheckCircle2, Share2, Upload } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -15,14 +15,48 @@ export default function SendMessage() {
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecorded, setHasRecorded] = useState(false);
   const [displayId, setDisplayId] = useState("");
+  const [countries, setCountries] = useState<{ code: string; name_ar: string }[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     message: "",
     nationality: "🇦🇪 الإمارات",
+    country_code: "AE",
+    country_name: "الإمارات",
     category: "مواطن"
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch countries from DB
+  useEffect(() => {
+    fetch("/api/countries")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCountries(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const flagMap: Record<string, string> = {
+    AE: "🇦🇪", SA: "🇸🇦", EG: "🇪🇬", IN: "🇮🇳", PK: "🇵🇰", JO: "🇯🇴",
+    PH: "🇵🇭", GB: "🇬🇧", US: "🇺🇸", FR: "🇫🇷", KW: "🇰🇼", BH: "🇧🇭",
+    QA: "🇶🇦", OM: "🇴🇲", DE: "🇩🇪", NG: "🇳🇬", KE: "🇰🇪", AU: "🇦🇺",
+    CA: "🇨🇦", TR: "🇹🇷",
+  };
+
+  const handleCountryChange = (value: string) => {
+    // value format: "CODE|name_ar"
+    const [code, name] = value.split("|");
+    const flag = flagMap[code] || "🌍";
+    setFormData({
+      ...formData,
+      nationality: `${flag} ${name}`,
+      country_code: code,
+      country_name: name,
+    });
+  };
 
   const startRecording = () => {
     setIsRecording(true);
@@ -56,6 +90,8 @@ export default function SendMessage() {
           name: formData.name,
           text: formData.message,
           nationality: formData.nationality,
+          country_code: formData.country_code,
+          country_name: formData.country_name,
           category: formData.category,
         }),
       });
@@ -78,6 +114,17 @@ export default function SendMessage() {
   const formatTime = (seconds: number) => {
     return `0:${seconds.toString().padStart(2, '0')}`;
   };
+
+  // Fallback countries if API fails
+  const countryOptions = countries.length > 0
+    ? countries.map((c) => ({ code: c.code, name: c.name_ar }))
+    : [
+        { code: "AE", name: "الإمارات" },
+        { code: "SA", name: "السعودية" },
+        { code: "EG", name: "مصر" },
+        { code: "IN", name: "الهند" },
+        { code: "PK", name: "باكستان" },
+      ];
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-24">
@@ -119,16 +166,15 @@ export default function SendMessage() {
                     <div>
                       <label className="block text-[var(--muted)] text-sm mb-2 px-1">الجنسية</label>
                       <select
-                        value={formData.nationality}
-                        onChange={e => setFormData({...formData, nationality: e.target.value})}
+                        value={`${formData.country_code}|${formData.country_name}`}
+                        onChange={e => handleCountryChange(e.target.value)}
                         className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
                       >
-                        <option>🇦🇪 الإمارات</option>
-                        <option>🇸🇦 السعودية</option>
-                        <option>🇪🇬 مصر</option>
-                        <option>🇮🇳 الهند</option>
-                        <option>🇵🇰 باكستان</option>
-                        <option>🌍 أخرى</option>
+                        {countryOptions.map((c) => (
+                          <option key={c.code} value={`${c.code}|${c.name}`}>
+                            {flagMap[c.code] || "🌍"} {c.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
 

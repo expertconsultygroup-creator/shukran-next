@@ -9,10 +9,10 @@ export function LiveCounter({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={`flex flex-col items-center ${compact ? "gap-2" : "gap-4"}`}>
-      <div className={`flex items-center ${compact ? "gap-1" : "gap-2"} dir-ltr`}>
+      <div className={`flex items-center ${compact ? "gap-1" : "gap-2"}`} dir="ltr" style={{ direction: "ltr" }}>
         {digits.map((digit, i) => (
           <div key={i} className="flex items-center">
-            {i > 0 && i % 3 === 0 && !compact && (
+            {i > 0 && (digits.length - i) % 3 === 0 && !compact && (
               <span className="text-[var(--gold-dark)] text-xl sm:text-3xl md:text-4xl font-mono mx-0.5 sm:mx-1">,</span>
             )}
             <div
