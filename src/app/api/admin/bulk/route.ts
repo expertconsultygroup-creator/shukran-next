@@ -12,22 +12,30 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { ids, status } = body;
+  const { ids, status, entity = "messages" } = body;
 
-  if (!Array.isArray(ids) || !["approved", "rejected"].includes(status)) {
+  const validStatuses = ["approved", "rejected", "published", "pending"];
+  if (!Array.isArray(ids) || !validStatuses.includes(status)) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const validEntities = ["messages", "poems", "videos"];
+  if (!validEntities.includes(entity)) {
+    return NextResponse.json({ error: "Invalid entity" }, { status: 400 });
   }
 
   const adminClient = createAdminClient();
 
+  const updateData: any = { status };
+  if (entity === "messages") {
+    updateData.moderator_id = user.id;
+    updateData.moderated_at = new Date().toISOString();
+    updateData.verified = status === "approved";
+  }
+
   const { data, error } = await adminClient
-    .from("messages")
-    .update({
-      status,
-      moderator_id: user.id,
-      moderated_at: new Date().toISOString(),
-      verified: status === "approved",
-    })
+    .from(entity)
+    .update(updateData)
     .in("id", ids)
     .select();
 

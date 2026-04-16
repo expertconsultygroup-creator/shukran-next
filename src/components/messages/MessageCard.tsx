@@ -4,8 +4,13 @@ import { useState } from "react";
 import { Share2, CheckCircle2 } from "lucide-react";
 import { BadgePill } from "@/components/shared/BadgePill";
 import { motion } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
 
 export function MessageCard({ message }: { message: any }) {
+  const t = useTranslations("shared");
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
+  
   const [expanded, setExpanded] = useState(false);
 
   const rankColorMap: Record<string, string> = {
@@ -21,37 +26,36 @@ export function MessageCard({ message }: { message: any }) {
     <motion.div
       whileHover={{ y: -6 }}
       className="group relative bg-[var(--card-glass)] backdrop-blur-[16px] rounded-2xl border border-[var(--gold-dim)] p-5 transition-all duration-300 hover:shadow-[var(--glow-gold)]"
-      style={{
-        borderRight: message.badge !== "💎" ? `3px solid ${borderColor}` : undefined,
-      }}
+      style={isRtl ? { borderRight: message.badge !== "💎" ? `3px solid ${borderColor}` : undefined } : { borderLeft: message.badge !== "💎" ? `3px solid ${borderColor}` : undefined }}
+      dir="auto"
     >
       {message.badge === "💎" && (
-        <div className="absolute inset-y-0 right-0 w-[3px] rounded-r-2xl animate-shimmer-border"
+        <div className={`absolute inset-y-0 ${isRtl ? 'right-0 rounded-r-2xl' : 'left-0 rounded-l-2xl'} w-[3px] animate-shimmer-border`}
              style={{ background: "linear-gradient(180deg, var(--gold), var(--desert), var(--camel), var(--gold))", backgroundSize: "200% 200%" }} />
       )}
 
       <div className="flex justify-between items-start mb-4">
-        <div>
+        <div className="text-start">
           <h3 className="font-sans font-bold text-lg text-[var(--white)] flex items-center gap-2">
-            {message.name} <span className="text-xl">{message.nationality}</span>
+            {message.name} <span className="text-xl">{isRtl ? message.nationality : (message.nationality_en || message.nationality)}</span>
           </h3>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <BadgePill rank={
-              message.badge === "💎" ? "بطل وطني" :
-              message.badge === "🥇" ? "سفير" :
-              message.badge === "🥈" ? "داعم" : "مشارك"
+            <BadgePill rankId={
+              message.badge === "💎" ? "nationalHero" :
+              message.badge === "🥇" ? "ambassador" :
+              message.badge === "🥈" ? "supporter" : "participant"
             } icon={message.badge} />
             {message.verified && (
               <span className="flex items-center gap-1 text-[var(--green)] text-xs font-bold bg-[var(--green-dim)] px-2 py-0.5 rounded-full">
                 <CheckCircle2 size={12} />
-                موثق
+                {t("verified")}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      <div className="relative">
+      <div className="relative text-start">
         <p className={`font-serif text-[var(--white)] leading-[2.2] text-lg ${!expanded ? "line-clamp-3" : ""}`}>
           {message.text}
         </p>
@@ -59,9 +63,10 @@ export function MessageCard({ message }: { message: any }) {
         {message.text.length > 100 && !expanded && (
           <button
             onClick={() => setExpanded(true)}
-            className="text-[var(--gold-light)] text-sm font-bold mt-2 hover:underline"
+            className="text-[var(--gold-light)] text-sm font-bold mt-2 hover:underline inline-block"
+            dir={isRtl ? "rtl" : "ltr"}
           >
-            اقرأ المزيد ←
+            {t("readMore")}
           </button>
         )}
       </div>

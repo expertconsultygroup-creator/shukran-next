@@ -82,7 +82,7 @@
 | URL | `/admin` (redirects to login if not authenticated) |
 | Admin Login Page | `/admin/login` |
 | Admin Email | `admin@shukran.ae` |
-| Admin Password | Set via Supabase Auth dashboard |
+| Admin Password | Set via Supabase Auth dashboard |. current password = Shukran@2026#UAE
 | Admin User ID | `38c3e49f-e52b-46cf-9ae1-04230016ae91` |
 | Role | `admin` (stored in `profiles` table) |
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
   const supabase = await createClient();
@@ -19,11 +20,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  if (!supabase) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  const adminClient = createAdminClient();
   const body = await request.json();
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from("poems")
     .insert({
       title: body.title,

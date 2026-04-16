@@ -1,28 +1,30 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, Link } from "@/i18n/navigation";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { useTheme } from "@/components/providers/ThemeProvider";
-
-const navLinks = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/messages", label: "الرسائل" },
-  { href: "/media", label: "الوسائط" },
-  { href: "/poetry", label: "القصائد" },
-  { href: "/ebook", label: "الكتاب" },
-  { href: "/guinness", label: "غينيس" },
-  { href: "/map", label: "الخريطة" },
-  { href: "/halloffame", label: "المتصدرون" },
-];
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { useTranslations } from "next-intl";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isLightMode, toggleTheme } = useTheme();
+  const t = useTranslations("navbar");
+
+  const navLinks = [
+    { href: "/", label: t("home") },
+    { href: "/messages", label: t("messages") },
+    { href: "/media", label: t("media") },
+    { href: "/poetry", label: t("poetry") },
+    { href: "/ebook", label: t("ebook") },
+    { href: "/guinness", label: t("guinness") },
+    { href: "/map", label: t("map") },
+    { href: "/halloffame", label: t("hallOfFame") },
+  ];
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -36,7 +38,7 @@ export function Navbar() {
             <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform group-hover:scale-105 transition-transform">
               <path d="M50 10 C27.9 10 10 27.9 10 50 C10 72.1 27.9 90 50 90 C60.1 90 69.3 86.2 76.2 79.9 C67.4 86.8 55.8 90 43.3 88 C21.4 84.5 5 62.7 8.5 40.8 C10.4 28.7 18 17.6 28.8 11.8 C35.2 8.4 42.5 7.1 50 10 Z" fill="var(--gold)"/>
             </svg>
-            <span className="font-sans font-bold text-2xl text-[var(--gold)] hidden sm:block">شكراً حماة الوطن</span>
+            <span className="font-sans font-bold text-2xl text-[var(--gold)] hidden sm:block">{t("home")}</span>
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">
@@ -54,6 +56,8 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-[var(--surface-2)] text-[var(--gold)] transition-colors"
@@ -66,7 +70,7 @@ export function Navbar() {
               href="/send"
               className="hidden sm:flex items-center justify-center px-6 h-10 rounded-full bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold shadow-[var(--glow-gold)] hover:scale-105 active:scale-95 transition-transform"
             >
-              أرسل رسالتك
+              {t("send")}
             </Link>
 
             <button
@@ -110,6 +114,7 @@ export function Navbar() {
                     className={`text-2xl font-sans font-bold ${
                       pathname === link.href ? "text-[var(--gold)]" : "text-[var(--white)]"
                     }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.label}
                   </Link>
@@ -120,13 +125,17 @@ export function Navbar() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: navLinks.length * 0.05 }}
-                className="mt-8"
+                className="mt-8 flex items-center justify-center gap-4 flex-col"
               >
+                <div className="flex bg-[var(--surface-2)] rounded-full p-2 text-[var(--white)] max-w-min mx-auto">
+                    <LanguageSwitcher />
+                </div>
                 <Link
                   href="/send"
                   className="flex items-center justify-center px-10 h-14 rounded-full bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-xl shadow-[var(--glow-gold)]"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  أرسل رسالتك
+                  {t("send")}
                 </Link>
               </motion.div>
             </div>

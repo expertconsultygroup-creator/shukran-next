@@ -2,8 +2,10 @@
 
 import { useLiveCount } from "@/hooks/use-live-count";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export function LiveCounter({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations("shared");
   const count = useLiveCount();
   const digits = count.toString().padStart(7, "0").split("");
 
@@ -46,7 +48,7 @@ export function LiveCounter({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <div className="flex items-center gap-3">
           <span className="w-2.5 h-2.5 rounded-full bg-[var(--green)] animate-ping" />
-          <span className="text-[var(--muted)] font-mono text-xl tracking-wider uppercase">رسالة شكر موثقة</span>
+          <span className="text-[var(--muted)] font-mono text-xl tracking-wider uppercase">{t("documentedMessage")}</span>
         </div>
       )}
     </div>
