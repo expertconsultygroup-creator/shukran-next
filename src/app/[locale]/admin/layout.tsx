@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, MessageSquare, PieChart, Film, ScrollText,
   Settings, LogOut, Bell,
@@ -17,6 +17,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
 
   const menu = [
     { href: "/admin", icon: LayoutDashboard, label: t("dashboard") },
@@ -29,6 +31,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
+
+  // ─── Auth Guard ────────────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) {
+      router.push("/admin/login");
+      return;
+    }
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/admin/login");
+      } else {
+        setIsAuthed(true);
+      }
+      setAuthChecked(true);
+    });
+
+    // Listen for auth state changes (e.g. session expiry)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        setIsAuthed(false);
+        router.push("/admin/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  // Show loading spinner while checking auth
+  if (!authChecked || !isAuthed) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-deep)] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--surface-2)', borderTopColor: 'var(--gold)' }}></div>
+      </div>
+    );
+  }
+  // ─── End Auth Guard ────────────────────────────────────────────
 
   const handleLogout = async () => {
     const supabase = createClient();
