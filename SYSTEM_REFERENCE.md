@@ -51,10 +51,10 @@
 | Item | Value |
 |---|---|
 | Project Name | shukran-next |
-| Project Ref | `yflpgnrrwnioiomdipik` |
-| Project URL | https://yflpgnrrwnioiomdipik.supabase.co |
-| Dashboard | https://supabase.com/dashboard/project/yflpgnrrwnioiomdipik |
-| Region | Middle East (closest available) |
+| Project Ref | `ypezycztskvsdxgjolkl` |
+| Project URL | https://ypezycztskvsdxgjolkl.supabase.co |
+| Dashboard | https://supabase.com/dashboard/project/ypezycztskvsdxgjolkl |
+| Region | ap-south-1 (Mumbai — closest available) |
 
 ### GitHub
 | Item | Value |
@@ -83,11 +83,11 @@
 | Admin Login Page | `/admin/login` |
 | Admin Email | `admin@shukran.ae` |
 | Admin Password | Set via Supabase Auth dashboard |. current password = Shukran@2026#UAE
-| Admin User ID | `38c3e49f-e52b-46cf-9ae1-04230016ae91` |
+| Admin User ID | `877e6496-2d5a-4470-ad6e-eef357bd94f8` |
 | Role | `admin` (stored in `profiles` table) |
 
 **To reset admin password:**
-1. Go to: https://supabase.com/dashboard/project/yflpgnrrwnioiomdipik/auth/users
+1. Go to: https://supabase.com/dashboard/project/ypezycztskvsdxgjolkl/auth/users
 2. Find `admin@shukran.ae`
 3. Click the user → "Send Password Reset Email" or set new password directly
 
@@ -400,7 +400,7 @@ User submits → status: pending (invisible to public)
 └──────────────────────┬───────────────────────────────┘
                        │ HTTP / Realtime
 ┌──────────────────────▼───────────────────────────────┐
-│              SUPABASE (yflpgnrrwnioiomdipik)          │
+│              SUPABASE (ypezycztskvsdxgjolkl)          │
 │  ┌────────────┐  ┌──────────────┐  ┌──────────────┐  │
 │  │ PostgreSQL │  │  Supabase    │  │   Storage    │  │
 │  │  messages  │  │    Auth      │  │ voice-msgs/  │  │
@@ -473,7 +473,7 @@ npx next start -p 3001
 Location: `/Users/mac/Desktop/Vibe-Code-System/shukran-next/.env.local`
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL="https://yflpgnrrwnioiomdipik.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL="https://ypezycztskvsdxgjolkl.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmbHBnbnJyd25pb2lvbWRpcGlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjEyMDAsImV4cCI6MjA5MTY5NzIwMH0.gDKYjsmo3m0XSTRKrVyqCcIxrxYvD9pvOOmYgLMH-h8"
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmbHBnbnJyd25pb2lvbWRpcGlrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjEyMTIwMCwiZXhwIjoyMDkxNjk3MjAwfQ.hknY1Uu48Rva4xLAcYb9vaa75XmktiNDivOJQDYW5-c"
 ```
@@ -515,7 +515,7 @@ COUNTER_START = 847_293    // Seed value (fallback only)
 ### Approving via API (Emergency / Batch)
 ```bash
 # Approve all pending
-curl -X PATCH "https://yflpgnrrwnioiomdipik.supabase.co/rest/v1/messages?status=eq.pending" \
+curl -X PATCH "https://ypezycztskvsdxgjolkl.supabase.co/rest/v1/messages?status=eq.pending" \
   -H "apikey: <SERVICE_ROLE_KEY>" \
   -H "Authorization: Bearer <SERVICE_ROLE_KEY>" \
   -H "Content-Type: application/json" \
@@ -530,7 +530,7 @@ curl -X PATCH "https://yflpgnrrwnioiomdipik.supabase.co/rest/v1/messages?status=
 
 ### Adding Daily Stats (Manual)
 ```bash
-curl -X POST "https://yflpgnrrwnioiomdipik.supabase.co/rest/v1/daily_stats" \
+curl -X POST "https://ypezycztskvsdxgjolkl.supabase.co/rest/v1/daily_stats" \
   -H "apikey: <SERVICE_ROLE_KEY>" \
   -H "Authorization: Bearer <SERVICE_ROLE_KEY>" \
   -H "Content-Type: application/json" \
@@ -561,7 +561,7 @@ UPDATE counter_cache SET count = (
 
 ### Admin login fails
 - **Cause**: Wrong password or user doesn't exist
-- **Fix**: Reset at https://supabase.com/dashboard/project/yflpgnrrwnioiomdipik/auth/users
+- **Fix**: Reset at https://supabase.com/dashboard/project/ypezycztskvsdxgjolkl/auth/users
 
 ### Build fails on Vercel
 - **Cause**: TypeScript error or missing env var
@@ -570,13 +570,13 @@ UPDATE counter_cache SET count = (
 
 ### App is slow / Supabase errors
 - **Cause**: Invalid Supabase keys or project paused
-- **Check**: Verify project is active at https://supabase.com/dashboard/project/yflpgnrrwnioiomdipik
+- **Check**: Verify project is active at https://supabase.com/dashboard/project/ypezycztskvsdxgjolkl
 - **Check**: `.env.local` has correct keys (no placeholder values)
 
 ### Local dev can't connect to Supabase
 - **Check**: `.env.local` exists in `shukran-next/` directory
 - **Check**: Keys don't contain `YOUR_` or `<placeholder>`
-- **Test**: `curl https://yflpgnrrwnioiomdipik.supabase.co/rest/v1/` should return JSON
+- **Test**: `curl https://ypezycztskvsdxgjolkl.supabase.co/rest/v1/` should return JSON
 
 ---
 
@@ -589,9 +589,9 @@ UPDATE counter_cache SET count = (
 ├─────────────────────────────────────────────────────┤
 │ ADMIN PANEL    /admin/login                         │
 │ Admin Email    admin@shukran.ae                     │
-│ Admin ID       38c3e49f-e52b-46cf-9ae1-04230016ae91 │
+│ Admin ID       877e6496-2d5a-4470-ad6e-eef357bd94f8 │
 ├─────────────────────────────────────────────────────┤
-│ SUPABASE       yflpgnrrwnioiomdipik                 │
+│ SUPABASE       ypezycztskvsdxgjolkl                 │
 │ Dashboard      supabase.com/dashboard/project/...   │
 ├─────────────────────────────────────────────────────┤
 │ GITHUB         expertconsultygroup-creator/         │
