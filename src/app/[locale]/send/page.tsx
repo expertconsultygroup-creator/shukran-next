@@ -26,7 +26,7 @@ export default function SendMessage() {
     nationality: `🇦🇪 ${t("uae")}`,
     country_code: "AE",
     country_name: t("uae"),
-    category: t("catCitizen")
+    category: "مواطن"
   });
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,7 +130,13 @@ export default function SendMessage() {
         { code: "PK", name: "باكستان" },
       ];
 
-  const categories = [t("catCitizen"), t("catResident"), t("catStudent"), t("catOrganization")];
+  const categoryValues = ["مواطن", "مقيم", "طالب", "جهة"] as const;
+  const categoryLabels: Record<string, string> = {
+    "مواطن": t("catCitizen"),
+    "مقيم": t("catResident"),
+    "طالب": t("catStudent"),
+    "جهة": t("catOrganization"),
+  };
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-24">
@@ -189,7 +195,7 @@ export default function SendMessage() {
                     <div>
                       <label className="block text-[var(--muted)] text-sm mb-3 px-1 text-start">{t("category")}</label>
                       <div className="flex flex-wrap gap-3">
-                        {categories.map(cat => (
+                        {categoryValues.map(cat => (
                           <button
                             type="button"
                             key={cat}
@@ -200,7 +206,7 @@ export default function SendMessage() {
                                 : 'bg-[var(--surface-2)] text-[var(--muted-light)] hover:bg-[rgba(203,163,68,0.1)] hover:text-[var(--gold)] border border-[var(--border)]'
                             }`}
                           >
-                            {cat}
+                            {categoryLabels[cat]}
                           </button>
                         ))}
                       </div>
