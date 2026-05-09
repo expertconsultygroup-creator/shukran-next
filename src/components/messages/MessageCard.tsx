@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Share2, CheckCircle2 } from "lucide-react";
 import { BadgePill } from "@/components/shared/BadgePill";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -70,6 +71,12 @@ export function MessageCard({ message }: { message: any }) {
           </button>
         )}
       </div>
+
+      {message.voice_url && (
+        <div className="mt-4">
+          <AudioPlayer src={message.voice_url} />
+        </div>
+      )}
 
       <div className="mt-6 pt-4 border-t border-[var(--border)] flex items-center justify-between">
         <div className="flex flex-col">

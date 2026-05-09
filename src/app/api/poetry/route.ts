@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       title: body.title,
       poet: body.poet,
       text: body.text,
+      audio_url: body.audio_url || null,
       status: "pending",
     })
     .select()

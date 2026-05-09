@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Check, X as XIcon, Eye } from "lucide-react";
+import { Search, Check, X as XIcon, Eye, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 interface Poem {
   id: string;
   title: string;
   poet: string;
   text: string;
+  audio_url?: string;
   status: string;
   created_at: string;
 }
@@ -173,9 +175,21 @@ export default function PoetryAdmin() {
                     <td className="px-6 py-4">
                       <input type="checkbox" className="accent-[var(--gold)]" checked={selectedIds.has(m.id)} onChange={() => toggleSelect(m.id)} />
                     </td>
-                    <td className="px-6 py-4 font-bold">{m.title}</td>
+                    <td className="px-6 py-4 font-bold">
+                      <span className="flex items-center gap-1.5">
+                        {m.title}
+                        {m.audio_url && <Volume2 size={14} className="text-[var(--gold)] shrink-0" />}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-[var(--muted-light)]">{m.poet}</td>
-                    <td className="px-6 py-4"><p className="truncate w-48 text-[var(--muted-light)]">{m.text}</p></td>
+                    <td className="px-6 py-4">
+                      <p className="truncate w-48 text-[var(--muted-light)]">{m.text}</p>
+                      {m.audio_url && (
+                        <div className="mt-2 max-w-[200px]">
+                          <AudioPlayer src={m.audio_url} className="!py-1 !px-2 !rounded-lg" />
+                        </div>
+                      )}
+                    </td>
                     <td className="px-6 py-4">
                       {m.status === "pending" && <span className="bg-[var(--camel)]/20 text-[var(--camel)] px-2 py-1 rounded text-xs">{t("pending")}</span>}
                       {m.status === "approved" && <span className="bg-[var(--green)]/20 text-[var(--green-light)] px-2 py-1 rounded text-xs">{t("approved")}</span>}
@@ -221,6 +235,11 @@ export default function PoetryAdmin() {
               <button onClick={() => setPreviewPoem(null)} className="text-[var(--muted)] hover:text-[var(--white)] shrink-0"><XIcon size={20} /></button>
             </div>
             <p className="text-[var(--white)] leading-loose mb-6 bg-[var(--bg-deep)] p-6 rounded-xl border border-[var(--border)] max-h-80 overflow-y-auto font-serif text-center whitespace-pre-wrap">{previewPoem.text}</p>
+            {previewPoem.audio_url && (
+              <div className="mb-6">
+                <AudioPlayer src={previewPoem.audio_url} />
+              </div>
+            )}
             <div className="flex items-center justify-between text-sm text-[var(--muted)]">
               <span>{new Date(previewPoem.created_at).toLocaleDateString(isRtl ? "ar-AE" : "en-US")}</span>
             </div>
