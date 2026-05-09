@@ -1,35 +1,40 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, CheckCircle2, Share2, Upload } from "lucide-react";
+import { Mic, CheckCircle2, Share2, Upload, Download } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { UAE_EMIRATES } from "@/lib/constants";
+import { useVoiceRecorder } from "@/hooks/use-voice-recorder";
+import { uploadAudio } from "@/lib/upload-audio";
+import { toast } from "sonner";
 
 export default function SendMessage() {
   const t = useTranslations("send");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [hasRecorded, setHasRecorded] = useState(false);
   const [displayId, setDisplayId] = useState("");
   const [countries, setCountries] = useState<{ code: string; name_ar: string }[]>([]);
+  const [generatingCert, setGeneratingCert] = useState(false);
+  const recorder = useVoiceRecorder(60);
   const [formData, setFormData] = useState({
     name: "",
     message: "",
     nationality: `🇦🇪 ${t("uae")}`,
     country_code: "AE",
     country_name: t("uae"),
-    category: "مواطن"
+    category: "مواطن",
+    phone: "",
+    emirate: "",
   });
-
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch countries from DB
   useEffect(() => {
@@ -62,31 +67,23 @@ export default function SendMessage() {
     });
   };
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    timerRef.current = setInterval(() => {
-      setRecordingTime(prev => {
-        if (prev >= 60) {
-          stopRecording();
-          return 60;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-  };
-
-  const stopRecording = () => {
-    setIsRecording(false);
-    setHasRecorded(true);
-    if (timerRef.current) clearInterval(timerRef.current);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      let voice_url: string | undefined;
+      if (recorder.audioBlob) {
+        try {
+          voice_url = await uploadAudio(recorder.audioBlob);
+        } catch (uploadErr) {
+          console.error("Voice upload failed:", uploadErr);
+          toast.error(locale === "ar" ? "فشل رفع التسجيل الصوتي، حاول مرة أخرى" : "Failed to upload audio, please try again");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,6 +94,9 @@ export default function SendMessage() {
           country_code: formData.country_code,
           country_name: formData.country_name,
           category: formData.category,
+          phone: formData.phone,
+          emirate: formData.emirate,
+          ...(voice_url && { voice_url }),
         }),
       });
 
@@ -110,13 +110,28 @@ export default function SendMessage() {
       confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors });
     } catch (error) {
       console.error("Submission error:", error);
+      toast.error(locale === "ar" ? "حدث خطأ أثناء الإرسال" : "Failed to send message");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const formatTime = (seconds: number) => {
-    return `0:${seconds.toString().padStart(2, '0')}`;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleDownloadCertificate = async () => {
+    setGeneratingCert(true);
+    try {
+      const { downloadCertificate } = await import("@/lib/generate-certificate");
+      await downloadCertificate({ name: formData.name, displayId, locale: locale as "ar" | "en" });
+    } catch {
+      toast.error("Failed to generate certificate");
+    } finally {
+      setGeneratingCert(false);
+    }
   };
 
   // Fallback countries if API fails
@@ -176,6 +191,26 @@ export default function SendMessage() {
                       </label>
                     </div>
 
+                    <div className="relative group">
+                      <input
+                        type="tel"
+                        id="phone"
+                        required
+                        value={formData.phone}
+                        onChange={e => setFormData({...formData, phone: e.target.value})}
+                        className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 pt-6 pb-2 focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors peer text-start"
+                        placeholder=" "
+                        dir="ltr"
+                        inputMode="tel"
+                      />
+                      <label
+                        htmlFor="phone"
+                        className="absolute end-4 top-4 text-[var(--muted)] transition-all peer-focus:-top-1 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
+                      >
+                        {t("phone")}
+                      </label>
+                    </div>
+
                     <div>
                       <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("nationality")}</label>
                       <select
@@ -187,6 +222,24 @@ export default function SendMessage() {
                         {countryOptions.map((c) => (
                           <option key={c.code} value={`${c.code}|${c.name}`}>
                             {flagMap[c.code] || "🌍"} {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("emirate")}</label>
+                      <select
+                        value={formData.emirate}
+                        onChange={e => setFormData({...formData, emirate: e.target.value})}
+                        required
+                        className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
+                        dir="auto"
+                      >
+                        <option value="" disabled>{t("selectEmirate")}</option>
+                        {UAE_EMIRATES.map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {isRtl ? e.name_ar : e.name_en}
                           </option>
                         ))}
                       </select>
@@ -238,33 +291,36 @@ export default function SendMessage() {
 
                     <div className="pt-4 border-t border-[var(--border)]">
                       <label className="block text-[var(--muted)] text-sm mb-4 px-1 text-start">{t("audioOptional")}</label>
-                      {!hasRecorded && !isRecording ? (
+                      {recorder.error && (
+                        <p className="text-[var(--red)] text-sm mb-3 px-1">{t("micPermissionDenied")}</p>
+                      )}
+                      {!recorder.audioUrl && !recorder.isRecording ? (
                         <div className="flex flex-col items-center justify-center py-6">
-                          <button type="button" onClick={startRecording} className="w-20 h-20 rounded-full bg-[var(--surface-2)] border-2 border-[var(--gold-dim)] flex items-center justify-center text-[var(--gold)] hover:scale-105 hover:bg-[var(--gold-dim)] transition-all shadow-[var(--glow-gold)] mb-3">
+                          <button type="button" onClick={recorder.startRecording} className="w-20 h-20 rounded-full bg-[var(--surface-2)] border-2 border-[var(--gold-dim)] flex items-center justify-center text-[var(--gold)] hover:scale-105 hover:bg-[var(--gold-dim)] transition-all shadow-[var(--glow-gold)] mb-3">
                             <Mic size={32} />
                           </button>
                           <span className="text-[var(--muted)] text-sm">{t("clickToRecord")}</span>
                         </div>
-                      ) : isRecording ? (
+                      ) : recorder.isRecording ? (
                         <div className="flex flex-col items-center justify-center py-6">
-                          <button type="button" onClick={stopRecording} className="w-20 h-20 rounded-full bg-[var(--red-dim)] border-2 border-[var(--red)] flex items-center justify-center text-[var(--red)] hover:scale-105 transition-all shadow-[var(--glow-red)] animate-pulse mb-4 relative">
+                          <button type="button" onClick={recorder.stopRecording} className="w-20 h-20 rounded-full bg-[var(--red-dim)] border-2 border-[var(--red)] flex items-center justify-center text-[var(--red)] hover:scale-105 transition-all shadow-[var(--glow-red)] animate-pulse mb-4 relative">
                             <div className="w-8 h-8 bg-[var(--red)] rounded-sm"></div>
                           </button>
                           <div className="flex items-center gap-4">
-                            <span className="font-mono text-[var(--red)] font-bold">{formatTime(recordingTime)}</span>
+                            <span className="font-mono text-[var(--red)] font-bold">{formatTime(recorder.recordingTime)}</span>
                           </div>
                         </div>
-                      ) : (
+                      ) : recorder.audioUrl ? (
                         <div className="py-4 flex items-center justify-between bg-[var(--surface-2)] px-4 rounded-xl border border-[var(--border)]">
-                          <AudioPlayer duration={formatTime(recordingTime)} className="flex-1 bg-transparent border-none px-0" />
-                          <button type="button" onClick={() => setHasRecorded(false)} className="text-[var(--red-light)] text-sm font-bold mx-4 hover:underline">{tCommon("delete")}</button>
+                          <AudioPlayer src={recorder.audioUrl} className="flex-1 bg-transparent border-none px-0" />
+                          <button type="button" onClick={recorder.deleteRecording} className="text-[var(--red-light)] text-sm font-bold mx-4 hover:underline">{tCommon("delete")}</button>
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
                     <button
                       type="submit"
-                      disabled={isSubmitting || (!formData.name || !formData.message)}
+                      disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate}
                       className="w-full h-14 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-lg shadow-[var(--glow-gold)] hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4"
                     >
                       {isSubmitting ? (
@@ -312,6 +368,14 @@ export default function SendMessage() {
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={handleDownloadCertificate}
+                    disabled={generatingCert}
+                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-bold disabled:opacity-50"
+                  >
+                    <Download size={18} />
+                    {generatingCert ? t("generatingCertificate") : t("downloadCertificate")}
+                  </button>
                   <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] border border-[var(--gold)] text-[var(--gold)] font-bold hover:bg-[var(--gold-dim)] transition-colors">
                     <Share2 size={18} />
                     {t("shareCard")}
@@ -319,11 +383,11 @@ export default function SendMessage() {
                   <button
                     onClick={() => {
                       setIsSuccess(false);
-                      setFormData({...formData, message: ""});
-                      setHasRecorded(false);
+                      setFormData({...formData, message: "", phone: "", emirate: ""});
+                      recorder.deleteRecording();
                       setDisplayId("");
                     }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-bold"
+                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--muted-light)] font-bold hover:bg-[var(--surface)] transition-colors"
                   >
                     {t("sendAnother")}
                   </button>

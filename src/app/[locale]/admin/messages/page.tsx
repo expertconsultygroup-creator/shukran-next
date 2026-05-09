@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Check, X as XIcon, Eye } from "lucide-react";
+import { Search, Check, X as XIcon, Eye, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
+import { AudioPlayer } from "@/components/shared/AudioPlayer";
 
 interface Message {
   id: string;
@@ -15,6 +16,9 @@ interface Message {
   category: string;
   status: string;
   created_at: string;
+  phone?: string;
+  emirate?: string;
+  voice_url?: string;
 }
 
 export default function MessagesAdmin() {
@@ -178,8 +182,17 @@ export default function MessagesAdmin() {
                       <input type="checkbox" className="accent-[var(--gold)]" checked={selectedIds.has(m.id)} onChange={() => toggleSelect(m.id)} />
                     </td>
                     <td className="px-6 py-4 font-mono text-[var(--muted-light)] text-xs">{m.display_id}</td>
-                    <td className="px-6 py-4 font-bold">{m.name}</td>
-                    <td className="px-6 py-4"><p className="truncate w-48 text-[var(--muted-light)]">{m.text}</p></td>
+                    <td className="px-6 py-4 font-bold">
+                      <span className="flex items-center gap-2">{m.name}{m.voice_url && <Volume2 size={14} className="text-[var(--gold)] shrink-0" />}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="truncate w-48 text-[var(--muted-light)]">{m.text}</p>
+                      {m.voice_url && (
+                        <div className="mt-2 max-w-[200px]">
+                          <AudioPlayer src={m.voice_url} className="!py-1 !px-2 !rounded-lg" />
+                        </div>
+                      )}
+                    </td>
                     <td className="px-6 py-4">{isRtl ? m.nationality : m.nationality} {m.country_name}</td>
                     <td className="px-6 py-4">
                       {m.status === "pending" && <span className="bg-[var(--camel)]/20 text-[var(--camel)] px-2 py-1 rounded text-xs">{t("pending")}</span>}
@@ -222,10 +235,18 @@ export default function MessagesAdmin() {
               <div>
                 <h3 className="font-bold text-[var(--white)] text-xl mb-1">{previewMsg.name}</h3>
                 <div className="text-[var(--muted)] text-sm">{previewMsg.display_id} — {previewMsg.nationality} {previewMsg.country_name}</div>
+                {previewMsg.phone && <div className="text-[var(--muted)] text-sm mt-1" dir="ltr">{t("phone")}: {previewMsg.phone}</div>}
+                {previewMsg.emirate && <div className="text-[var(--muted)] text-sm mt-1">{t("emirate")}: {previewMsg.emirate}</div>}
               </div>
               <button onClick={() => setPreviewMsg(null)} className="text-[var(--muted)] hover:text-[var(--white)] shrink-0"><XIcon size={20} /></button>
             </div>
             <p className="text-[var(--white)] leading-relaxed mb-6 bg-[var(--bg-deep)] p-4 rounded-xl border border-[var(--border)] max-h-60 overflow-y-auto font-serif">{previewMsg.text}</p>
+            {previewMsg.voice_url && (
+              <div className="mb-6">
+                <label className="text-[var(--muted)] text-sm mb-2 block">{t("voiceRecording")}</label>
+                <AudioPlayer src={previewMsg.voice_url} />
+              </div>
+            )}
             <div className="flex items-center justify-between text-sm text-[var(--muted)]">
               <span>{previewMsg.category}</span>
               <span>{new Date(previewMsg.created_at).toLocaleDateString(isRtl ? "ar-AE" : "en-US")}</span>

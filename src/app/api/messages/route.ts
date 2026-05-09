@@ -11,6 +11,8 @@ const messageSchema = z.object({
   country_code: z.string().length(2).default("AE"),
   country_name: z.string().min(1).default("الإمارات"),
   category: z.enum(["مواطن", "مقيم", "طالب", "جهة"]),
+  phone: z.string().min(7).max(20),
+  emirate: z.string().min(1),
   voice_url: z.string().url().optional(),
 });
 
@@ -93,6 +95,8 @@ export async function POST(request: NextRequest) {
       country_code: parsed.data.country_code,
       country_name: parsed.data.country_name,
       category: parsed.data.category,
+      phone: parsed.data.phone,
+      emirate: parsed.data.emirate,
       voice_url: parsed.data.voice_url || null,
       ip_hash: ipHash,
       status: "pending",

@@ -20,6 +20,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
 
+  const isLoginPage = pathname === "/admin/login";
+
   const menu = [
     { href: "/admin", icon: LayoutDashboard, label: t("dashboard") },
     { href: "/admin/messages", icon: MessageSquare, label: t("manageMessages") },
@@ -27,14 +29,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/poetry", icon: ScrollText, label: t("managePoetry") },
   ];
 
-  // Don't wrap the login page with the admin layout
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
-
   // ─── Auth Guard ────────────────────────────────────────────────
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    if (isLoginPage) return;
+
     const supabase = createClient();
     if (!supabase) {
       router.push("/admin/login");
@@ -59,7 +57,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, isLoginPage]);
+  // ─── End Auth Guard ────────────────────────────────────────────
+
+  // Don't wrap the login page with the admin layout
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   // Show loading spinner while checking auth
   if (!authChecked || !isAuthed) {
@@ -69,7 +73,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     );
   }
-  // ─── End Auth Guard ────────────────────────────────────────────
 
   const handleLogout = async () => {
     const supabase = createClient();

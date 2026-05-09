@@ -64,7 +64,7 @@ export default function Poetry() {
             <p className="text-[var(--gold-light)] font-sans mb-10 text-lg">{t("poetLabel")} {featured.poet}</p>
             <div className="font-serif text-[16px] sm:text-[20px] md:text-[22px] leading-[2.4] sm:leading-[2.6] text-[var(--white)] whitespace-pre-wrap px-2 sm:px-4 md:px-12 mx-auto inline-block text-center mb-12">{featured.text}</div>
             {featured.audio_url && (
-              <div className="flex justify-center max-w-sm mx-auto"><AudioPlayer duration="1:45" className="w-full" /></div>
+              <div className="flex justify-center max-w-sm mx-auto"><AudioPlayer src={featured.audio_url} className="w-full" /></div>
             )}
           </motion.div>
         </div>
@@ -109,7 +109,7 @@ export default function Poetry() {
                   <h2 className="font-sans font-bold text-3xl text-[var(--gold)] mb-2">{p.title}</h2>
                   <p className="text-[var(--muted-light)] mb-10">{t("poetLabel")} {p.poet}</p>
                   <div className="font-serif text-xl leading-[2.6] text-[var(--white)] whitespace-pre-wrap inline-block text-center mb-10">{p.text}</div>
-                  {p.audio_url && <div className="mt-8 border-t border-[var(--border)] pt-8 max-w-sm mx-auto"><AudioPlayer duration="2:10" /></div>}
+                  {p.audio_url && <div className="mt-8 border-t border-[var(--border)] pt-8 max-w-sm mx-auto"><AudioPlayer src={p.audio_url} /></div>}
                 </div>
               </motion.div>
             </div>

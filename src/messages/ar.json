@@ -87,7 +87,14 @@
     "reason2Title": "توثيق تاريخي",
     "reason2Text": "ستُحفظ رسالتك في السجل الوطني والكتاب الرقمي.",
     "reason3Title": "رقم غينيس",
-    "reason3Text": "أنت تساهم في تحقيق رقم قياسي عالمي باسم دولة الإمارات."
+    "reason3Text": "أنت تساهم في تحقيق رقم قياسي عالمي باسم دولة الإمارات.",
+    "phone": "رقم الهاتف",
+    "emirate": "الإمارة",
+    "selectEmirate": "اختر الإمارة",
+    "downloadCertificate": "تحميل الشهادة",
+    "generatingCertificate": "جاري إنشاء الشهادة...",
+    "recording": "جاري التسجيل...",
+    "micPermissionDenied": "تم رفض إذن الميكروفون"
   },
   "messages": {
     "title": "الرسائل",
@@ -186,14 +193,13 @@
   },
   "map": {
     "title": "الخريطة",
-    "heroTitle": "رسائل من كل أنحاء العالم",
-    "heroDesc": "{count} دولة شاركت في توثيق حب الوطن",
-    "globalParticipation": "مشاركة عالمية",
+    "heroTitle": "رسائل من كافة الإمارات",
+    "heroDesc": "استكشف مشاركة كل إمارة في الحملة الوطنية",
+    "emiratesParticipation": "مشاركة الإمارات",
     "messageLabel": "رسالة",
-    "uaeLabel": "الإمارات",
     "highParticipation": "مشاركة عالية",
+    "mediumParticipation": "مشاركة متوسطة",
     "lowParticipation": "مشاركة منخفضة",
-    "topCountries": "أعلى الدول مشاركة",
     "noParticipations": "لا توجد مشاركات بعد"
   },
   "hallOfFame": {
@@ -308,7 +314,19 @@
     "videoDeleted": "تم حذف الفيديو",
     "videoUpdated": "تم تحديث الفيديو",
     "videoAdded": "تم إضافة الفيديو",
-    "submitVideo": "حفظ الفيديو"
+    "submitVideo": "حفظ الفيديو",
+    "phone": "الهاتف",
+    "emirate": "الإمارة",
+    "voiceRecording": "تسجيل صوتي"
+  },
+  "certificate": {
+    "title": "شهادة مشاركة",
+    "subtitle": "شكراً حماة الوطن",
+    "body": "تشهد هذه الشهادة بأن",
+    "hasDocumented": "قد وثّق رسالة شكر لحماة الوطن",
+    "confirmationNumber": "رقم التوثيق",
+    "date": "التاريخ",
+    "platform": "منصة شكراً حماة الوطن"
   },
   "common": {
     "loading": "تحميل...",

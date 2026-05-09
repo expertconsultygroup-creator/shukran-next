@@ -1,0 +1,143 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "abu_dhabi", "name": "Abu Dhabi", "name_ar": "أبوظبي" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [51.50, 22.60],
+            [55.00, 22.60],
+            [55.90, 22.80],
+            [55.90, 24.85],
+            [54.85, 24.85],
+            [54.40, 24.50],
+            [53.80, 24.20],
+            [53.00, 24.10],
+            [52.30, 24.10],
+            [51.70, 24.30],
+            [51.50, 24.40],
+            [51.50, 22.60]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "dubai", "name": "Dubai", "name_ar": "دبي" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [54.85, 24.85],
+            [55.55, 24.85],
+            [55.55, 25.30],
+            [55.40, 25.40],
+            [54.85, 25.10],
+            [54.85, 24.85]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "sharjah", "name": "Sharjah", "name_ar": "الشارقة" },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [55.55, 24.85],
+              [55.90, 24.85],
+              [55.90, 25.40],
+              [55.65, 25.40],
+              [55.55, 25.30],
+              [55.55, 24.85]
+            ]
+          ],
+          [
+            [
+              [56.05, 25.05],
+              [56.20, 25.05],
+              [56.20, 25.30],
+              [56.05, 25.35],
+              [56.05, 25.05]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "ajman", "name": "Ajman", "name_ar": "عجمان" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [55.40, 25.40],
+            [55.55, 25.40],
+            [55.45, 25.50],
+            [55.40, 25.40]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "umm_al_quwain", "name": "Umm Al Quwain", "name_ar": "أم القيوين" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [55.45, 25.50],
+            [55.55, 25.50],
+            [55.65, 25.55],
+            [55.65, 25.65],
+            [55.45, 25.65],
+            [55.45, 25.50]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "ras_al_khaimah", "name": "Ras Al Khaimah", "name_ar": "رأس الخيمة" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [55.45, 25.65],
+            [55.65, 25.65],
+            [55.90, 25.50],
+            [56.10, 25.55],
+            [56.20, 25.85],
+            [55.95, 26.15],
+            [55.65, 26.05],
+            [55.45, 25.65]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "fujairah", "name": "Fujairah", "name_ar": "الفجيرة" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [56.20, 24.95],
+            [56.55, 24.95],
+            [56.65, 25.30],
+            [56.55, 25.70],
+            [56.20, 25.85],
+            [56.10, 25.55],
+            [56.20, 25.35],
+            [56.20, 24.95]
+          ]
+        ]
+      }
+    }
+  ]
+}

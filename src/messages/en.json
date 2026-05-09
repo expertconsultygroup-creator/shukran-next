@@ -87,7 +87,14 @@
     "reason2Title": "Historical documentation",
     "reason2Text": "Your message will be preserved in the national record and digital book.",
     "reason3Title": "Guinness Record",
-    "reason3Text": "You are contributing to achieving a world record in the name of the UAE."
+    "reason3Text": "You are contributing to achieving a world record in the name of the UAE.",
+    "phone": "Phone Number",
+    "emirate": "Emirate",
+    "selectEmirate": "Select your emirate",
+    "downloadCertificate": "Download Certificate",
+    "generatingCertificate": "Generating certificate...",
+    "recording": "Recording...",
+    "micPermissionDenied": "Microphone permission denied"
   },
   "messages": {
     "title": "Messages",
@@ -186,14 +193,13 @@
   },
   "map": {
     "title": "Map",
-    "heroTitle": "Messages From All Over the World",
-    "heroDesc": "{count} countries participated in documenting their love for the nation",
-    "globalParticipation": "Global Participation",
+    "heroTitle": "Messages Across the Emirates",
+    "heroDesc": "Explore how each emirate contributes to the national campaign",
+    "emiratesParticipation": "Emirates Participation",
     "messageLabel": "Messages",
-    "uaeLabel": "UAE",
     "highParticipation": "High Participation",
+    "mediumParticipation": "Medium Participation",
     "lowParticipation": "Low Participation",
-    "topCountries": "Top Participating Countries",
     "noParticipations": "No participations yet"
   },
   "hallOfFame": {
@@ -308,7 +314,19 @@
     "videoDeleted": "Video Deleted",
     "videoUpdated": "Video Updated",
     "videoAdded": "Video Added",
-    "submitVideo": "Save Video"
+    "submitVideo": "Save Video",
+    "phone": "Phone",
+    "emirate": "Emirate",
+    "voiceRecording": "Voice Recording"
+  },
+  "certificate": {
+    "title": "Certificate of Participation",
+    "subtitle": "Thank You, Guardians of the Nation",
+    "body": "This certifies that",
+    "hasDocumented": "has documented their thank you message to the guardians of the UAE",
+    "confirmationNumber": "Confirmation Number",
+    "date": "Date",
+    "platform": "Shukran Hamaat Al-Watan Platform"
   },
   "common": {
     "loading": "Loading...",
