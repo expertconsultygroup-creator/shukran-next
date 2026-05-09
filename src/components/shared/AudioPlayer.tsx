@@ -34,7 +34,10 @@ export function AudioPlayer({ src, className = "", onDelete }: AudioPlayerProps)
   const barHeights = generateBarHeights(src || "default", 30);
 
   useEffect(() => {
-    const audio = new Audio(src);
+    const audio = new Audio();
+    // Disable range requests for blob URLs (prevents ERR_REQUEST_RANGE_NOT_SATISFIABLE)
+    audio.preload = src.startsWith("blob:") ? "auto" : "metadata";
+    audio.src = src;
     audioRef.current = audio;
 
     audio.addEventListener("loadedmetadata", () => {
@@ -52,6 +55,11 @@ export function AudioPlayer({ src, className = "", onDelete }: AudioPlayerProps)
       setIsPlaying(false);
       setProgress(0);
       setCurrentTime(0);
+    });
+
+    audio.addEventListener("error", () => {
+      // Silently handle load errors (e.g. revoked blob URLs during Hot Refresh)
+      setIsPlaying(false);
     });
 
     return () => {

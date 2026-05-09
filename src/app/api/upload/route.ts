@@ -44,11 +44,13 @@ export async function POST(request: NextRequest) {
   const file = formData.get("file") as File | null;
 
   if (!file || file.size === 0) {
+    console.error("[upload] No file or empty file:", { hasFile: !!file, size: file?.size, type: file?.type, name: file?.name });
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
   const contentType = resolveContentType(file.type, file.name);
   if (!contentType) {
+    console.error("[upload] Invalid type:", { type: file.type, name: file.name, size: file.size });
     return NextResponse.json(
       { error: `Invalid file type: ${file.type || "(empty)"}` },
       { status: 400 }

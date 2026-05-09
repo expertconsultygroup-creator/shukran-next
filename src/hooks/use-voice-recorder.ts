@@ -27,7 +27,6 @@ export function useVoiceRecorder(maxDuration = 60) {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
