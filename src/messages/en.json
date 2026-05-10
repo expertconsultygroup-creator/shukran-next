@@ -55,7 +55,10 @@
     "dailyMessages": "Daily Messages",
     "noDailyData": "No daily data yet",
     "participationDist": "Participation Distribution",
-    "country": "Country"
+    "country": "Country",
+    "storyTitle": "Our Story",
+    "storyDesc": "Discover the Shield of the Nation initiative and our mission to honor and thank the heroes of the UAE Armed Forces",
+    "storyReplay": "Watch Again"
   },
   "send": {
     "title": "Send Message",

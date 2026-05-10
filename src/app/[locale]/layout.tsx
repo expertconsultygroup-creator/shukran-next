@@ -84,7 +84,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir} className={`${cairo.variable} ${notoNaskh.variable} ${cinzel.variable}`} suppressHydrationWarning>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className="font-sans antialiased bg-background text-foreground" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <QueryProvider>
             <SupabaseProvider>

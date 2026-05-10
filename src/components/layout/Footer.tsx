@@ -17,9 +17,13 @@ export async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="text-start">
             <div className="flex items-center gap-3 mb-4">
-              <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 10 C27.9 10 10 27.9 10 50 C10 72.1 27.9 90 50 90 C60.1 90 69.3 86.2 76.2 79.9 C67.4 86.8 55.8 90 43.3 88 C21.4 84.5 5 62.7 8.5 40.8 C10.4 28.7 18 17.6 28.8 11.8 C35.2 8.4 42.5 7.1 50 10 Z" fill="var(--gold)"/>
-              </svg>
+              <img
+                src="/media/logo.jpeg"
+                alt="مبادرة درع الوطن"
+                width={44}
+                height={44}
+                className="rounded-md"
+              />
               <h2 className="font-sans font-bold text-xl text-[var(--gold)]">{t("siteName")}</h2>
             </div>
             <p className="text-[var(--muted)] font-sans font-bold">{t("nationalProject")}</p>

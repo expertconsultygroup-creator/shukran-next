@@ -34,11 +34,15 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full backdrop-blur-[20px] bg-[var(--navbar-glass)] border-b border-[rgba(203,163,68,0.20)]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform group-hover:scale-105 transition-transform">
-              <path d="M50 10 C27.9 10 10 27.9 10 50 C10 72.1 27.9 90 50 90 C60.1 90 69.3 86.2 76.2 79.9 C67.4 86.8 55.8 90 43.3 88 C21.4 84.5 5 62.7 8.5 40.8 C10.4 28.7 18 17.6 28.8 11.8 C35.2 8.4 42.5 7.1 50 10 Z" fill="var(--gold)"/>
-            </svg>
-            <span className="font-sans font-bold text-2xl text-[var(--gold)] hidden sm:block">{t("home")}</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <img
+              src="/media/logo.jpeg"
+              alt="مبادرة درع الوطن"
+              width={52}
+              height={52}
+              className="rounded-md transform group-hover:scale-105 transition-transform"
+            />
+            <span className="font-sans font-bold text-lg text-[var(--gold)] hidden sm:block leading-tight">{t("home")}</span>
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">
