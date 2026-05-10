@@ -57,6 +57,20 @@ export async function generateMetadata({
       description: t('description'),
       locale: locale === 'ar' ? 'ar_AE' : 'en_US',
       type: "website",
+      images: [
+        {
+          url: '/media/og-image.jpg',
+          width: 1200,
+          height: 630,
+          alt: t('title'),
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: ['/media/og-image.jpg'],
     },
   };
 }
