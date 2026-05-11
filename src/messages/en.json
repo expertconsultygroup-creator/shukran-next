@@ -14,6 +14,7 @@
     "map": "Map",
     "hallOfFame": "Hall of Fame",
     "partners": "Partners",
+    "guide": "Guide",
     "send": "Send Message",
     "admin": "Admin"
   },
@@ -226,6 +227,29 @@
     "colCountry": "Country",
     "colMessages": "Messages",
     "colBadge": "Badge"
+  },
+  "guide": {
+    "heroTitle": "How to Send Your Message",
+    "heroSubtitle": "Follow these simple steps to document your thank you message to the guardians of the UAE",
+    "downloadPdf": "Download PDF Guide",
+    "generating": "Generating...",
+    "step1Title": "Visit the Platform",
+    "step1Desc": "Open your browser and navigate to the website. Click \"Send Message\" from the navigation bar or the home page to begin.",
+    "step2Title": "Enter Your Personal Details",
+    "step2Desc": "Fill in your full name and phone number. Your name will appear on your participation certificate. Select your nationality and the emirate you are based in.",
+    "step3Title": "Choose Your Category",
+    "step3Desc": "Select one of four categories: Citizen, Resident, Student, or Organization. This helps us understand and categorize participation across the nation.",
+    "step4Title": "Write Your Thank You Message",
+    "step4Desc": "Compose a heartfelt message of gratitude between 10 and 500 characters. Your words will be documented in the national record and digital book.",
+    "step5Title": "Record a Voice Message (Optional)",
+    "step5Desc": "Tap the microphone icon to record a voice message up to 60 seconds. You can preview, delete, and re-record before submitting. This step is optional.",
+    "step6Title": "Submit Your Message",
+    "step6Desc": "Click the \"Document Message\" button to send your message. Wait a moment while your message is being processed and documented.",
+    "step7Title": "Download Your Certificate",
+    "step7Desc": "After successful submission, you will receive a unique document number. Download your Certificate of Participation as a keepsake image.",
+    "ctaTitle": "Ready to Participate?",
+    "ctaDesc": "Your message makes a difference. Be part of history and contribute to a Guinness World Record.",
+    "sendNow": "Send Your Message Now"
   },
   "partners": {
     "heroTitle": "Our Strategic Partners",

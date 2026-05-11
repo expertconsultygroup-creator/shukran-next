@@ -25,6 +25,7 @@ export function Navbar() {
     { href: "/map", label: t("map") },
     { href: "/halloffame", label: t("hallOfFame") },
     { href: "/partners", label: t("partners") },
+    { href: "/guide", label: t("guide") },
   ];
 
   useEffect(() => {

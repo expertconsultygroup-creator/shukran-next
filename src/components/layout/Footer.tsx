@@ -39,6 +39,7 @@ export async function Footer() {
               <li><Link href="/send" className="text-[var(--muted-light)] hover:text-[var(--gold)] transition-colors">{tNav("send")}</Link></li>
               <li><Link href="/messages" className="text-[var(--muted-light)] hover:text-[var(--gold)] transition-colors">{tNav("messages")}</Link></li>
               <li><Link href="/guinness" className="text-[var(--muted-light)] hover:text-[var(--gold)] transition-colors">{tNav("guinness")}</Link></li>
+              <li><Link href="/guide" className="text-[var(--muted-light)] hover:text-[var(--gold)] transition-colors">{tNav("guide")}</Link></li>
             </ul>
           </div>
 
