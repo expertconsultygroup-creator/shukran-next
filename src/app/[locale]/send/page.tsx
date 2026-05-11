@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, CheckCircle2, Share2, Upload, Download } from "lucide-react";
+import { Mic, CheckCircle2, Upload, Download } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
@@ -367,7 +367,7 @@ export default function SendMessage() {
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex justify-center">
                   <button
                     onClick={handleDownloadCertificate}
                     disabled={generatingCert}
@@ -375,21 +375,6 @@ export default function SendMessage() {
                   >
                     <Download size={18} />
                     {generatingCert ? t("generatingCertificate") : t("downloadCertificate")}
-                  </button>
-                  <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] border border-[var(--gold)] text-[var(--gold)] font-bold hover:bg-[var(--gold-dim)] transition-colors">
-                    <Share2 size={18} />
-                    {t("shareCard")}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsSuccess(false);
-                      setFormData({...formData, message: "", phone: "", emirate: ""});
-                      recorder.deleteRecording();
-                      setDisplayId("");
-                    }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--muted-light)] font-bold hover:bg-[var(--surface)] transition-colors"
-                  >
-                    {t("sendAnother")}
                   </button>
                 </div>
               </motion.div>

@@ -228,25 +228,25 @@ export default function MapPage() {
   /* ---------------------------------------------------------------- */
   return (
     <div className="min-h-screen bg-[var(--bg-deep)]" dir="auto">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-12 px-2 sm:px-0">
           <div className="text-start">
-            <h1 className="font-sans font-black text-2xl sm:text-4xl text-[var(--white)] mb-2">
+            <h1 className="font-sans font-black text-xl sm:text-4xl text-[var(--white)] mb-1 sm:mb-2">
               {t("heroTitle")}
             </h1>
-            <p className="text-[var(--muted-light)]">{t("heroDesc")}</p>
+            <p className="text-[var(--muted-light)] text-sm sm:text-base">{t("heroDesc")}</p>
           </div>
-          <div className="bg-[var(--gold-dim)] border border-[var(--gold)] px-4 py-2 rounded-full text-[var(--gold)] font-bold shadow-[var(--glow-gold)]">
+          <div className="bg-[var(--gold-dim)] border border-[var(--gold)] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[var(--gold)] font-bold shadow-[var(--glow-gold)] text-sm sm:text-base">
             {t("emiratesParticipation")}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-8">
           {/* ========== MAP ========== */}
           <div
             ref={containerRef}
-            className="xl:col-span-3 bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-4 sm:p-6 relative overflow-hidden shadow-lg"
+            className="xl:col-span-3 bg-[var(--surface)] border border-[var(--border)] rounded-2xl sm:rounded-3xl p-2 sm:p-6 relative overflow-hidden shadow-lg"
             onMouseMove={handleMouseMove}
             onMouseLeave={() => {
               setHoveredId(null);
@@ -537,8 +537,8 @@ export default function MapPage() {
               </div>
             )}
 
-            {/* Legend */}
-            <div className="absolute bottom-4 end-4 bg-[var(--card-glass-deep)] backdrop-blur-md border border-[var(--border)] rounded-xl p-3 z-20">
+            {/* Legend — hidden on mobile, shown overlaid on md+ */}
+            <div className="hidden md:block absolute bottom-4 end-4 bg-[var(--card-glass-deep)] backdrop-blur-md border border-[var(--border)] rounded-xl p-3 z-20">
               <div className="text-[var(--muted-light)] text-[10px] font-bold uppercase tracking-wider mb-2">
                 {isRtl ? "الإمارات" : "Emirates"}
               </div>
@@ -571,6 +571,40 @@ export default function MapPage() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          {/* Legend — mobile only, shown inline below the map */}
+          <div className="md:hidden bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4">
+            <div className="text-[var(--muted-light)] text-[10px] font-bold uppercase tracking-wider mb-3">
+              {isRtl ? "الإمارات" : "Emirates"}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {EMIRATES.map((e) => (
+                <button
+                  key={`m-${e.id}`}
+                  className="flex items-center gap-2 text-start p-2 rounded-lg hover:bg-[var(--surface-2)] transition-colors"
+                  onClick={() => toggleSelect(e.id)}
+                >
+                  <div
+                    className="w-3 h-3 rounded-sm flex-shrink-0"
+                    style={{
+                      backgroundColor: e.color,
+                      outline: selectedId === e.id ? "2px solid var(--white)" : "none",
+                      outlineOffset: 1,
+                    }}
+                  />
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: selectedId === e.id ? "var(--white)" : "var(--muted)",
+                      fontWeight: selectedId === e.id ? 700 : 400,
+                    }}
+                  >
+                    {isRtl ? e.name_ar : e.name_en}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 

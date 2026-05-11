@@ -24,6 +24,7 @@ export function Navbar() {
     { href: "/guinness", label: t("guinness") },
     { href: "/map", label: t("map") },
     { href: "/halloffame", label: t("hallOfFame") },
+    { href: "/partners", label: t("partners") },
   ];
 
   useEffect(() => {
