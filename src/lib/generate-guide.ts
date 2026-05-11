@@ -85,7 +85,7 @@ function pageFooter(ctx: CanvasRenderingContext2D, pageNum: number, total: numbe
   ctx.fillStyle = "rgba(143,164,184,0.4)";
   ctx.font = "400 16px GuideFont";
   ctx.textAlign = "center";
-  ctx.fillText(`shukran-next.vercel.app  ·  ${pageNum} / ${total}`, PW / 2, PH - 50);
+  ctx.fillText(`www.shukranwatan.ae  ·  ${pageNum} / ${total}`, PW / 2, PH - 50);
 }
 
 function drawStepCircle(ctx: CanvasRenderingContext2D, x: number, y: number, num: number, size: number = 48) {
@@ -138,8 +138,8 @@ const steps: StepData[] = [
     num: 1,
     titleEn: "Visit the Platform",
     titleAr: "زيارة المنصة",
-    descEn: 'Open your browser and go to shukran-next.vercel.app\nClick "Send Message" from the navigation bar or home page',
-    descAr: 'افتح المتصفح وانتقل إلى shukran-next.vercel.app\nاضغط على "أرسل رسالة" من شريط التنقل أو الصفحة الرئيسية',
+    descEn: 'Open your browser and go to www.shukranwatan.ae\nClick "Send Message" from the navigation bar or home page',
+    descAr: 'افتح المتصفح وانتقل إلى www.shukranwatan.ae\nاضغط على "أرسل رسالة" من شريط التنقل أو الصفحة الرئيسية',
     emoji: "🌐",
   },
   {
@@ -516,7 +516,7 @@ function renderTipsPage(ctx: CanvasRenderingContext2D, totalPages: number) {
   ctx.fillStyle = DARK;
   ctx.font = "700 24px GuideFont";
   ctx.textAlign = "center";
-  ctx.fillText("Start Now  ·  ابدأ الآن  ·  shukran-next.vercel.app", PW / 2, ctaY + 48);
+  ctx.fillText("Start Now  ·  ابدأ الآن  ·  www.shukranwatan.ae", PW / 2, ctaY + 48);
 
   pageFooter(ctx, totalPages, totalPages);
 }
@@ -590,6 +590,31 @@ export async function downloadUserGuide() {
   ctx.clearRect(0, 0, PW, PH);
   renderTipsPage(ctx, totalPages);
   doc.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, PW / 2, PH / 2);
+
+  // Add clickable links on every page footer where the URL is displayed
+  const url = "https://www.shukranwatan.ae";
+  const linkW = 200;
+  const linkH = 20;
+  const linkX = PW / 4 - linkW / 2; // centered in the half-size page
+  const linkY = PH / 2 - 35;        // footer area
+
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.link(linkX, linkY, linkW, linkH, { url });
+  }
+
+  // Cover page: also make the CTA info box area clickable
+  doc.setPage(1);
+  // Steps page 1: step 1 mentions the URL
+  doc.setPage(2);
+  const step1LinkX = 80 / 2 + 30 / 2; // approximate position scaled to half
+  doc.link(step1LinkX, 200, 300, 20, { url });
+
+  // Tips page: CTA button is clickable
+  doc.setPage(4);
+  const ctaBtnX = PW / 4 - 300 / 2;
+  const ctaBtnY = (90 + 50 + 690) / 2;
+  doc.link(ctaBtnX, ctaBtnY, 300, 40, { url });
 
   doc.save("shukran-user-guide.pdf");
 }
