@@ -35,7 +35,7 @@
 | Storage | Supabase Storage |
 | Deployment | Vercel (auto-deploy on push) |
 | Repository | github.com/expertconsultygroup-creator/shukran-next |
-| Vercel URL | https://shukran-next.vercel.app |
+| Vercel URL | https://www.shukranwatan.ae |
 
 ### Key Numbers (April 2026)
 - **Total messages**: 847,317+ approved
@@ -68,7 +68,7 @@
 |---|---|
 | Dashboard | https://vercel.com/dashboard |
 | Project | shukran-next |
-| Live URL | https://shukran-next.vercel.app |
+| Live URL | https://www.shukranwatan.ae |
 | Build Command | `npx next build` |
 | Framework | Next.js (auto-detected) |
 
@@ -210,7 +210,7 @@ created_at TIMESTAMPTZ
 
 ## 5. API Reference
 
-Base URL: `https://shukran-next.vercel.app` (production) or `http://localhost:3001` (local)
+Base URL: `https://www.shukranwatan.ae` (production) or `http://localhost:3001` (local)
 
 ### Public Endpoints
 
@@ -597,7 +597,7 @@ UPDATE counter_cache SET count = (
 │ GITHUB         expertconsultygroup-creator/         │
 │                shukran-next                         │
 ├─────────────────────────────────────────────────────┤
-│ VERCEL         shukran-next.vercel.app              │
+│ VERCEL         www.shukranwatan.ae              │
 ├─────────────────────────────────────────────────────┤
 │ LOCAL DEV      npx next dev -p 3000                 │
 │ LOCAL PATH     ~/Desktop/Vibe-Code-System/          │
