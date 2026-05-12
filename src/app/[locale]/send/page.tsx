@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, CheckCircle2, Upload, Download } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -22,54 +22,21 @@ export default function SendMessage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [displayId, setDisplayId] = useState("");
-  const [countries, setCountries] = useState<{ code: string; name_ar: string }[]>([]);
   const [generatingCert, setGeneratingCert] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const recorder = useVoiceRecorder(60);
   const [formData, setFormData] = useState({
     name: "",
     message: "",
-    nationality: `🇦🇪 ${t("uae")}`,
-    country_code: "AE",
-    country_name: t("uae"),
     category: "مواطن",
     phone: "",
     emirate: "",
   });
 
-  // Fetch countries from DB
-  useEffect(() => {
-    fetch("/api/countries")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setCountries(data);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const flagMap: Record<string, string> = {
-    AE: "🇦🇪", SA: "🇸🇦", EG: "🇪🇬", IN: "🇮🇳", PK: "🇵🇰", JO: "🇯🇴",
-    PH: "🇵🇭", GB: "🇬🇧", US: "🇺🇸", FR: "🇫🇷", KW: "🇰🇼", BH: "🇧🇭",
-    QA: "🇶🇦", OM: "🇴🇲", DE: "🇩🇪", NG: "🇳🇬", KE: "🇰🇪", AU: "🇦🇺",
-    CA: "🇨🇦", TR: "🇹🇷",
-  };
-
-  const handleCountryChange = (value: string) => {
-    // value format: "CODE|name_ar"
-    const [code, name] = value.split("|");
-    const flag = flagMap[code] || "🌍";
-    setFormData({
-      ...formData,
-      nationality: `${flag} ${name}`,
-      country_code: code,
-      country_name: name,
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setPhoneError("");
 
     try {
       let voice_url: string | undefined;
@@ -90,9 +57,9 @@ export default function SendMessage() {
         body: JSON.stringify({
           name: formData.name,
           text: formData.message,
-          nationality: formData.nationality,
-          country_code: formData.country_code,
-          country_name: formData.country_name,
+          nationality: `🇦🇪 ${t("uae")}`,
+          country_code: "AE",
+          country_name: t("uae"),
           category: formData.category,
           phone: formData.phone,
           emirate: formData.emirate,
@@ -100,7 +67,15 @@ export default function SendMessage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to submit");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        if (res.status === 409 && errorData?.error === "DUPLICATE_PHONE") {
+          setPhoneError(t("duplicatePhone"));
+          setIsSubmitting(false);
+          return;
+        }
+        throw new Error("Failed to submit");
+      }
 
       const data = await res.json();
       setDisplayId(data.message?.display_id || "");
@@ -134,23 +109,10 @@ export default function SendMessage() {
     }
   };
 
-  // Fallback countries if API fails
-  const countryOptions = countries.length > 0
-    ? countries.map((c) => ({ code: c.code, name: c.name_ar }))
-    : [
-        { code: "AE", name: "الإمارات" },
-        { code: "SA", name: "السعودية" },
-        { code: "EG", name: "مصر" },
-        { code: "IN", name: "الهند" },
-        { code: "PK", name: "باكستان" },
-      ];
-
-  const categoryValues = ["مواطن", "مقيم", "طالب", "جهة"] as const;
+  const categoryValues = ["مواطن", "مقيم"] as const;
   const categoryLabels: Record<string, string> = {
     "مواطن": t("catCitizen"),
     "مقيم": t("catResident"),
-    "طالب": t("catStudent"),
-    "جهة": t("catOrganization"),
   };
 
   return (
@@ -197,34 +159,21 @@ export default function SendMessage() {
                         id="phone"
                         required
                         value={formData.phone}
-                        onChange={e => setFormData({...formData, phone: e.target.value})}
-                        className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 pt-6 pb-2 focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors peer text-start"
+                        onChange={e => { setFormData({...formData, phone: e.target.value}); setPhoneError(""); }}
+                        className={`w-full bg-[var(--input-glass)] border-none border-b-2 text-[var(--text-on-input)] px-4 pt-6 pb-2 focus:ring-0 focus:outline-none transition-colors peer text-start ${phoneError ? "border-[var(--red)] focus:border-[var(--red)]" : "border-[var(--border)] focus:border-[var(--gold)]"}`}
                         placeholder=" "
                         dir="ltr"
                         inputMode="tel"
                       />
                       <label
                         htmlFor="phone"
-                        className="absolute end-4 top-4 text-[var(--muted)] transition-all peer-focus:-top-1 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
+                        className={`absolute end-4 top-4 transition-all peer-focus:-top-1 peer-focus:text-xs peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs ${phoneError ? "text-[var(--red)] peer-focus:text-[var(--red)] peer-[:not(:placeholder-shown)]:text-[var(--red)]" : "text-[var(--muted)] peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:text-[var(--gold)]"}`}
                       >
                         {t("phone")}
                       </label>
-                    </div>
-
-                    <div>
-                      <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("nationality")}</label>
-                      <select
-                        value={`${formData.country_code}|${formData.country_name}`}
-                        onChange={e => handleCountryChange(e.target.value)}
-                        className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
-                        dir="auto"
-                      >
-                        {countryOptions.map((c) => (
-                          <option key={c.code} value={`${c.code}|${c.name}`}>
-                            {flagMap[c.code] || "🌍"} {c.name}
-                          </option>
-                        ))}
-                      </select>
+                      {phoneError && (
+                        <p className="text-[var(--red)] text-sm mt-2 px-1 font-bold">{phoneError}</p>
+                      )}
                     </div>
 
                     <div>

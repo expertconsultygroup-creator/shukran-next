@@ -20,7 +20,7 @@ export default function Messages() {
   const [page, setPage] = useState(1);
   const count = useLiveCount();
 
-  const filters = [t("filterAll"), tSend("catCitizen"), tSend("catResident"), tSend("catStudent"), tSend("catOrganization")];
+  const filters = [t("filterAll"), tSend("catCitizen"), tSend("catResident")];
 
   useEffect(() => {
     setPage(1);
@@ -30,15 +30,9 @@ export default function Messages() {
     async function fetchMessages() {
       setLoading(true);
       
-      // Map the translated filter back to the Arabic term expected by the API if needed, 
-      // or if the API supports English, we send it. The DB likely stores Arabic categories for now.
-      // Since the original code expects "مواطن", "مقيم", "طالب", "جهة", we might need to map them back
-      // if the current locale is English. However, assuming API could be updated or we send the Arabic term for DB query:
       let apiFilter = filter;
       if (filter === tSend("catCitizen")) apiFilter = "مواطن";
       if (filter === tSend("catResident")) apiFilter = "مقيم";
-      if (filter === tSend("catStudent")) apiFilter = "طالب";
-      if (filter === tSend("catOrganization")) apiFilter = "جهة";
       
       const params = new URLSearchParams({
         page: page.toString(),

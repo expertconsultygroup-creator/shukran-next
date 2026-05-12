@@ -10,7 +10,7 @@ const messageSchema = z.object({
   nationality: z.string().min(1),
   country_code: z.string().length(2).default("AE"),
   country_name: z.string().min(1).default("الإمارات"),
-  category: z.enum(["مواطن", "مقيم", "طالب", "جهة"]),
+  category: z.enum(["مواطن", "مقيم"]),
   phone: z.string().min(7).max(20),
   emirate: z.string().min(1),
   voice_url: z.string().url().optional(),
@@ -86,6 +86,21 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
 
+  // Check if phone number already used
+  const { data: existing } = await supabase
+    .from("messages")
+    .select("id")
+    .eq("phone", parsed.data.phone)
+    .limit(1)
+    .single();
+
+  if (existing) {
+    return NextResponse.json(
+      { error: "DUPLICATE_PHONE", message: "This phone number has already been used to send a message." },
+      { status: 409 }
+    );
+  }
+
   const { data, error } = await supabase
     .from("messages")
     .insert({
@@ -105,6 +120,13 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
+    // Handle unique constraint violation as fallback
+    if (error.code === "23505" && error.message.includes("phone")) {
+      return NextResponse.json(
+        { error: "DUPLICATE_PHONE", message: "This phone number has already been used to send a message." },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

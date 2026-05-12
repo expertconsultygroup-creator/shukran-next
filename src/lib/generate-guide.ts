@@ -170,8 +170,8 @@ const steps: StepData[] = [
     num: 5,
     titleEn: "Choose Your Category",
     titleAr: "اختر فئتك",
-    descEn: "Select one: Citizen, Resident, Student, or Organization.\nThis helps us categorize participation.",
-    descAr: "اختر واحداً: مواطن، مقيم، طالب، أو جهة.\nهذا يساعدنا في تصنيف المشاركات.",
+    descEn: "Select one: Citizen or Resident.\nThis helps us categorize participation.",
+    descAr: "اختر واحداً: مواطن أو مقيم.\nهذا يساعدنا في تصنيف المشاركات.",
     emoji: "👤",
   },
   {

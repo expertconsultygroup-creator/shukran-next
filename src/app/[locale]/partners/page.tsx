@@ -6,6 +6,7 @@ import {
   Ship,
   Factory,
   ShieldCheck,
+  Landmark,
   Globe,
   ExternalLink,
   Handshake,
@@ -63,6 +64,17 @@ const partners: Partner[] = [
     descKey: "pssDesc",
     website: "https://pssuae.net/",
     logo: "/partner/pss-logo.png",
+  },
+  {
+    id: "mashreq",
+    nameEn: "Mashreq Al Islami",
+    nameAr: "\u0627\u0644\u0645\u0634\u0631\u0642 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064A",
+    abbreviation: "MAI",
+    categoryKey: "catBanking",
+    CategoryIcon: Landmark,
+    descKey: "mashreqDesc",
+    website: "https://www.mashreq.com/en/uae/islamic/",
+    logo: "/partner/mashreq-logo.png",
   },
 ];
 
@@ -184,7 +196,7 @@ export default function Partners() {
 
         {/* ── Partner Cards ── */}
         <section className="mb-24">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {partners.map((partner, i) => (
               <motion.div
                 key={partner.id}
