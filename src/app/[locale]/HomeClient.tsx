@@ -9,10 +9,9 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useEffect, useState, useRef } from "react";
 import { COUNTER_GOAL } from "@/lib/constants";
 import { useLiveCount } from "@/hooks/use-live-count";
-import { useTranslations, useFormatter } from "next-intl";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { Play, Pause, Volume2, Volume1, VolumeX, Maximize, Minimize, RotateCcw, SkipBack, SkipForward } from "lucide-react";
 
-const natColors = ["#CBA344", "#3F8E50", "#0090D4", "#7A9BB5", "#D83731", "#9EA2A9"];
 
 interface HomeClientProps {
   initialMessages: any[];
@@ -22,13 +21,14 @@ interface HomeClientProps {
 export default function HomeClient({ initialMessages, initialCount }: HomeClientProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [stats, setStats] = useState({ totalMessages: 0, totalCountries: 0, totalVideos: 0, totalPoems: 0 });
-  const [categoryBreakdown, setCategoryBreakdown] = useState<{ name: string; value: number }[]>([]);
+  const [emirateData, setEmirateData] = useState<{ id: string; name_en: string; name_ar: string; count: number }[]>([]);
   const [dailyData, setDailyData] = useState<{ label: string; count: number }[]>([]);
   const liveCount = useLiveCount();
 
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const format = useFormatter();
+  const locale = useLocale();
 
   // Use live count if available, otherwise fall back to fetched stats, then initialCount
   const messageCount = liveCount > 0 ? liveCount : (stats.totalMessages > 0 ? stats.totalMessages : initialCount);
@@ -52,12 +52,6 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
           totalVideos: d.totalVideos || 0,
           totalPoems: d.totalPoems || 0,
         });
-        setCategoryBreakdown(
-          (d.categoryBreakdown || []).map((c: any, i: number) => ({
-            ...c,
-            color: natColors[i % natColors.length],
-          }))
-        );
         if (d.dailyStats?.length > 0) {
           setDailyData(
             [...d.dailyStats].reverse().map((s: any) => ({
@@ -68,6 +62,12 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
           );
         }
       })
+      .catch(() => {});
+
+    // Fetch emirate breakdown
+    fetch("/api/emirates")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setEmirateData(d); })
       .catch(() => {});
   }, [messages.length]);
 
@@ -299,29 +299,41 @@ export default function HomeClient({ initialMessages, initialCount }: HomeClient
               )}
             </div>
 
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-6 flex flex-col justify-center items-center h-[280px] sm:h-[400px]">
-              <h3 className="font-sans font-bold text-lg text-[var(--white)] mb-6 self-start w-full" dir="auto">{t("participationDist")}</h3>
-              <div className="relative w-48 h-48 rounded-full border-[16px] border-[var(--surface-2)] shadow-[var(--glow-gold)] flex items-center justify-center">
-                <div className="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-t-[var(--gold)] border-r-[var(--gold)] transform rotate-45"></div>
-                <div className="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-b-[var(--green)] transform rotate-[10deg]"></div>
-                <div className="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-l-[var(--sea)] transform -rotate-[15deg]"></div>
-
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-[var(--white)]">{stats.totalCountries}</div>
-                  <div className="text-xs text-[var(--muted)]" dir="auto">{t("country")}</div>
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-8 flex-wrap justify-center w-full" dir="auto">
-                {categoryBreakdown.length > 0 ? categoryBreakdown.map((c: any) => (
-                  <div key={c.name} className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }}></span>
-                    <span className="text-sm text-[var(--muted-light)]">{c.name} {c.value}%</span>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 sm:p-6 flex flex-col h-[280px] sm:h-[400px]">
+              <h3 className="font-sans font-bold text-lg text-[var(--white)] mb-3 sm:mb-5" dir="auto">{t("participationDist")}</h3>
+              {emirateData.length > 0 ? (() => {
+                const maxCount = Math.max(...emirateData.map(e => e.count), 1);
+                const total = emirateData.reduce((sum, e) => sum + e.count, 0);
+                const colors = ["#CBA344", "#3F8E50", "#0090D4", "#D83731", "#7A9BB5", "#9B59B6", "#E67E22"];
+                return (
+                  <div className="flex-1 flex flex-col justify-between overflow-y-auto">
+                    <div className="space-y-2 sm:space-y-2.5">
+                      {emirateData.map((e, i) => (
+                        <div key={e.id}>
+                          <div className="flex justify-between items-center mb-1" dir="auto">
+                            <span className="text-xs sm:text-sm font-bold text-[var(--muted-light)] truncate">{locale === "ar" ? e.name_ar : e.name_en}</span>
+                            <span className="text-xs sm:text-sm font-mono text-[var(--white)] flex-shrink-0 ms-2">{format.number(e.count)}</span>
+                          </div>
+                          <div className="h-2 sm:h-2.5 w-full bg-[var(--surface-2)] rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${maxCount > 0 ? (e.count / maxCount) * 100 : 0}%`, backgroundColor: colors[i % colors.length] }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-2 sm:pt-3 mt-2 border-t border-[var(--border)]" dir="auto">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs sm:text-sm font-bold text-[var(--muted-light)]">{t("totalParticipants")}</span>
+                        <span className="text-base sm:text-lg font-mono font-bold text-[var(--gold)]">{format.number(total)}</span>
+                      </div>
+                    </div>
                   </div>
-                )) : (
-                  <div className="text-sm text-[var(--muted)]">{tCommon("loading")}</div>
-                )}
-              </div>
+                );
+              })() : (
+                <div className="flex-1 flex items-center justify-center text-[var(--muted)]" dir="auto">{tCommon("loading")}</div>
+              )}
             </div>
           </div>
         </div>
