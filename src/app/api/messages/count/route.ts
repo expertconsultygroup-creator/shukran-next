@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET() {
   const supabase = await createClient();
   if (!supabase) {
-    return NextResponse.json({ total: 847293, pending: 0, rejected: 0, goal: 1000000 });
+    return NextResponse.json({ total: 0, pending: 0, rejected: 0, goal: 1000000 });
   }
 
   const { data, error } = await supabase

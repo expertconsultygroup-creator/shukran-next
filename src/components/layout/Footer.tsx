@@ -16,16 +16,30 @@ export async function Footer() {
       <div className="container mx-auto px-4 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="text-start">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
               <img
                 src="/media/logo.jpeg"
                 alt="مبادرة درع الوطن"
-                width={44}
-                height={44}
-                className="rounded-md"
+                width={42}
+                height={42}
+                className="rounded-lg"
               />
-              <h2 className="font-sans font-bold text-xl text-[var(--gold)]">{t("siteName")}</h2>
+              <img
+                src="/media/armed-forces-50.jpeg"
+                alt="ذكرى توحيد القوات المسلحة ٥٠ عاماً"
+                width={48}
+                height={48}
+                className="object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
+              />
+              <img
+                src="/media/al-nahyan-center.png"
+                alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
             </div>
+            <h2 className="font-sans font-bold text-xl text-[var(--gold)] mb-2">{t("siteName")}</h2>
             <p className="text-[var(--muted)] font-sans font-bold">{t("nationalProject")}</p>
             <p className="text-[var(--muted-light)] mt-4 text-sm max-w-xs leading-relaxed">
               {t("description")}

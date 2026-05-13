@@ -138,8 +138,8 @@ const steps: StepData[] = [
     num: 1,
     titleEn: "Visit the Platform",
     titleAr: "زيارة المنصة",
-    descEn: 'Open your browser and go to www.shukranwatan.ae\nClick "Send Message" from the navigation bar or home page',
-    descAr: 'افتح المتصفح وانتقل إلى www.shukranwatan.ae\nاضغط على "أرسل رسالة" من شريط التنقل أو الصفحة الرئيسية',
+    descEn: 'Open your browser and go to the Shukran Watan platform.\nClick "Send Message" from the navigation bar or home page.',
+    descAr: 'افتح المتصفح وانتقل إلى منصة شكراً وطن.\nاضغط على "أرسل رسالة" من شريط التنقل أو الصفحة الرئيسية.',
     emoji: "🌐",
   },
   {
@@ -239,15 +239,20 @@ function renderCover(ctx: CanvasRenderingContext2D, logo: HTMLImageElement | nul
     y += size + 40;
   }
 
-  // Arabic title
+  // Platform name
   ctx.fillStyle = GOLD;
-  ctx.font = "700 52px GuideFont";
-  ctx.fillText("شكراً حماة الوطن", PW / 2, y);
-  y += 50;
+  ctx.font = "700 60px GuideFont";
+  ctx.fillText("شكراً وطن", PW / 2, y);
+  y += 52;
 
-  // English title
+  // Platform tagline
   ctx.fillStyle = WHITE;
-  ctx.font = "700 36px GuideFont";
+  ctx.font = "700 32px GuideFont";
+  ctx.fillText("شكراً حماة الوطن", PW / 2, y);
+  y += 38;
+
+  ctx.fillStyle = MUTED;
+  ctx.font = "400 26px GuideFont";
   ctx.fillText("Thank You, Guardians of the Nation", PW / 2, y);
   y += 50;
 

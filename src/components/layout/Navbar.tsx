@@ -36,15 +36,28 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full backdrop-blur-[20px] bg-[var(--navbar-glass)] border-b border-[rgba(203,163,68,0.20)]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2.5 group">
             <img
               src="/media/logo.jpeg"
               alt="مبادرة درع الوطن"
+              width={46}
+              height={46}
+              className="rounded-lg transform group-hover:scale-105 transition-transform"
+            />
+            <img
+              src="/media/armed-forces-50.jpeg"
+              alt="ذكرى توحيد القوات المسلحة ٥٠ عاماً"
               width={52}
               height={52}
-              className="rounded-md transform group-hover:scale-105 transition-transform"
+              className="object-contain transform group-hover:scale-105 transition-transform drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
             />
-            <span className="font-sans font-bold text-lg text-[var(--gold)] hidden sm:block leading-tight">{t("home")}</span>
+            <img
+              src="/media/al-nahyan-center.png"
+              alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
+              width={52}
+              height={52}
+              className="object-contain transform group-hover:scale-105 transition-transform"
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">

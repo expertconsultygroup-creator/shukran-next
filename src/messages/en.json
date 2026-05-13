@@ -26,7 +26,8 @@
     "contactUs": "Contact Us",
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
-    "copyright": "© 2025 Thank You, Guardians of the Nation Platform — All Rights Reserved"
+    "copyright": "© 2025 Thank You, Guardians of the Nation Platform — All Rights Reserved",
+    "alMarkazDoc": "Al Nahyan Cultural Centre"
   },
   "ticker": {
     "live": "Live",
@@ -232,14 +233,14 @@
     "heroSubtitle": "Follow these simple steps to document your thank you message to the guardians of the UAE",
     "downloadPdf": "Download PDF Guide",
     "generating": "Generating...",
-    "step1Title": "Visit the Platform",
-    "step1Desc": "Open your browser and navigate to the website. Click \"Send Message\" from the navigation bar or the home page to begin.",
+    "step1Title": "Visit Shukran Watan Platform",
+    "step1Desc": "Open your browser and navigate to the Shukran Watan platform. Click \"Send Message\" from the navigation bar or the home page to begin.",
     "step2Title": "Enter Your Personal Details",
     "step2Desc": "Fill in your full name and phone number. Your name will appear on your participation certificate. Select your nationality and the emirate you are based in.",
     "step3Title": "Choose Your Category",
-    "step3Desc": "Select one of four categories: Citizen, Resident, Student, or Organization. This helps us understand and categorize participation across the nation.",
+    "step3Desc": "Select your category: Citizen or Resident. This helps us categorize participation across the nation.",
     "step4Title": "Write Your Thank You Message",
-    "step4Desc": "Compose a heartfelt message of gratitude between 10 and 500 characters. Your words will be documented in the national record and digital book.",
+    "step4Desc": "Compose a heartfelt message of gratitude between 10 and 500 characters. Your words will be documented in the national record.",
     "step5Title": "Record a Voice Message (Optional)",
     "step5Desc": "Tap the microphone icon to record a voice message up to 60 seconds. You can preview, delete, and re-record before submitting. This step is optional.",
     "step6Title": "Submit Your Message",

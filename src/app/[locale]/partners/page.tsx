@@ -33,6 +33,17 @@ interface Partner {
 
 const partners: Partner[] = [
   {
+    id: "mashreq",
+    nameEn: "Mashreq Al Islami",
+    nameAr: "\u0627\u0644\u0645\u0634\u0631\u0642 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064A",
+    abbreviation: "MAI",
+    categoryKey: "catBanking",
+    CategoryIcon: Landmark,
+    descKey: "mashreqDesc",
+    website: "https://www.mashreq.com/en/uae/islamic/",
+    logo: "/partner/mashreq-logo.png",
+  },
+  {
     id: "adsb",
     nameEn: "Abu Dhabi Ship Building PJSC",
     nameAr: "\u0623\u0628\u0648\u0638\u0628\u064A \u0644\u0628\u0646\u0627\u0621 \u0627\u0644\u0633\u0641\u0646",
@@ -64,17 +75,6 @@ const partners: Partner[] = [
     descKey: "pssDesc",
     website: "https://pssuae.net/",
     logo: "/partner/pss-logo.png",
-  },
-  {
-    id: "mashreq",
-    nameEn: "Mashreq Al Islami",
-    nameAr: "\u0627\u0644\u0645\u0634\u0631\u0642 \u0627\u0644\u0625\u0633\u0644\u0627\u0645\u064A",
-    abbreviation: "MAI",
-    categoryKey: "catBanking",
-    CategoryIcon: Landmark,
-    descKey: "mashreqDesc",
-    website: "https://www.mashreq.com/en/uae/islamic/",
-    logo: "/partner/mashreq-logo.png",
   },
 ];
 

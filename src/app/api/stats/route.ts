@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { COUNTER_START } from "@/lib/constants";
 
 export async function GET() {
   const supabase = await createClient();
   if (!supabase) {
     return NextResponse.json({
-      totalMessages: 847293,
+      totalMessages: COUNTER_START,
       todayMessages: 0,
       pendingMessages: 0,
       rejectedMessages: 0,

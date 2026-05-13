@@ -93,7 +93,23 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
 
-  const initialCount = COUNTER_START;
+  let initialCount = COUNTER_START;
+  try {
+    const { createClient } = await import("@/lib/supabase/server");
+    const supabase = await createClient();
+    if (supabase) {
+      const { data } = await supabase
+        .from("counter_cache")
+        .select("total_approved")
+        .eq("id", 1)
+        .single();
+      if (data?.total_approved) {
+        initialCount = data.total_approved;
+      }
+    }
+  } catch {
+    // Fallback to COUNTER_START if Supabase is unavailable
+  }
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (

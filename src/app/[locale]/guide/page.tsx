@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, FileText, Mic, Send, User, MapPin, MessageSquare, Award } from "lucide-react";
+import { Download, Globe, Mic, Send, User, Users, MessageSquare, Award } from "lucide-react";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { useTranslations, useLocale } from "next-intl";
@@ -17,9 +17,9 @@ interface Step {
 }
 
 const steps: Step[] = [
-  { num: 1, titleKey: "step1Title", descKey: "step1Desc", Icon: FileText },
+  { num: 1, titleKey: "step1Title", descKey: "step1Desc", Icon: Globe },
   { num: 2, titleKey: "step2Title", descKey: "step2Desc", Icon: User },
-  { num: 3, titleKey: "step3Title", descKey: "step3Desc", Icon: MapPin },
+  { num: 3, titleKey: "step3Title", descKey: "step3Desc", Icon: Users },
   { num: 4, titleKey: "step4Title", descKey: "step4Desc", Icon: MessageSquare },
   { num: 5, titleKey: "step5Title", descKey: "step5Desc", Icon: Mic },
   { num: 6, titleKey: "step6Title", descKey: "step6Desc", Icon: Send },

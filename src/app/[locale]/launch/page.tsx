@@ -128,7 +128,7 @@ export default function LaunchPage() {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto overflow-x-hidden"
+        className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto overflow-x-hidden"
         style={{ background: "#030A12" }}
         initial={{ opacity: 1 }}
         animate={{ opacity: entered ? 0 : 1 }}
@@ -153,7 +153,7 @@ export default function LaunchPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 1.5 }}
-            className={`absolute ${pos} pointer-events-none`}
+            className={`absolute ${pos} pointer-events-none hidden sm:block`}
           >
             <svg width="100" height="100" viewBox="0 0 100 100" className="opacity-40">
               <path
@@ -180,48 +180,58 @@ export default function LaunchPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 0.6 }}
           onClick={handleLangSwitch}
-          className={`absolute top-5 ${isRtl ? "left-5" : "right-5"} z-20 flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#CBA344]/30 bg-[rgba(10,30,52,0.7)] backdrop-blur-xl text-[#D7BC6D] text-sm font-sans font-semibold hover:border-[#CBA344]/70 hover:bg-[rgba(203,163,68,0.1)] transition-all duration-300 cursor-pointer`}
+          className={`absolute top-3 sm:top-5 ${isRtl ? "left-3 sm:left-5" : "right-3 sm:right-5"} z-20 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full border border-[#CBA344]/30 bg-[rgba(10,30,52,0.7)] backdrop-blur-xl text-[#D7BC6D] text-xs sm:text-sm font-sans font-semibold hover:border-[#CBA344]/70 hover:bg-[rgba(203,163,68,0.1)] transition-all duration-300 cursor-pointer`}
         >
           <Globe size={14} />
           {t("langSwitch")}
         </motion.button>
 
         {/* ━━━━━ MAIN CONTENT ━━━━━ */}
-        <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-2xl mx-auto py-8">
+        <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 max-w-2xl mx-auto py-6 sm:py-8 min-h-[100dvh] justify-center">
 
           {/* ── Logo ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.6, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-5 relative"
+            className="mb-4 sm:mb-5 relative"
           >
-            <div className="absolute -inset-5 rounded-3xl bg-[#CBA344]/15 blur-2xl" />
+            <div className="absolute -inset-4 sm:-inset-5 rounded-3xl bg-[#CBA344]/15 blur-2xl" />
             <div className="absolute -inset-2 rounded-2xl bg-[#CBA344]/8 blur-md" />
             <img
               src="/media/logo.jpeg"
               alt={t("initiative")}
               width={110}
               height={110}
-              className="relative rounded-2xl border-2 border-[#CBA344]/50 shadow-[0_0_50px_rgba(203,163,68,0.35),0_0_100px_rgba(203,163,68,0.1)]"
+              className="relative w-[80px] h-[80px] sm:w-[110px] sm:h-[110px] rounded-2xl border-2 border-[#CBA344]/50 shadow-[0_0_50px_rgba(203,163,68,0.35),0_0_100px_rgba(203,163,68,0.1)]"
             />
           </motion.div>
 
-          {/* ── Platform title ── */}
+          {/* ── Platform name ── */}
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl bg-gradient-to-b from-[#F5E6B8] via-[#CBA344] to-[#A07B28] bg-clip-text text-transparent mb-2 leading-tight drop-shadow-[0_2px_12px_rgba(203,163,68,0.3)]"
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="font-serif font-bold text-3xl sm:text-5xl md:text-6xl bg-gradient-to-b from-[#F5E6B8] via-[#CBA344] to-[#A07B28] bg-clip-text text-transparent mb-2 sm:mb-3 leading-tight drop-shadow-[0_2px_12px_rgba(203,163,68,0.3)]"
+          >
+            {t("platformName")}
+          </motion.h1>
+
+          {/* ── Platform tagline ── */}
+          <motion.h2
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="font-serif font-bold text-lg sm:text-2xl md:text-3xl text-white/90 mb-1 sm:mb-2 leading-tight"
           >
             {t("platformTagline")}
-          </motion.h1>
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-[#8FAFC8] text-xs sm:text-sm tracking-[0.25em] uppercase font-sans font-medium mb-2"
+            className="text-[#8FAFC8] text-[10px] sm:text-sm tracking-[0.15em] sm:tracking-[0.25em] uppercase font-sans font-medium mb-1 sm:mb-2"
           >
             {t("initiative")}
           </motion.p>
@@ -236,8 +246,8 @@ export default function LaunchPage() {
             className="w-full"
           >
             {/* "Under the Patronage of" label */}
-            <div className="inline-block px-6 py-1.5 rounded-full bg-[#CBA344]/10 border border-[#CBA344]/25 mb-5">
-              <span className="text-[#D7BC6D] text-xs sm:text-sm font-sans font-semibold tracking-[0.15em] uppercase">
+            <div className="inline-block px-4 sm:px-6 py-1 sm:py-1.5 rounded-full bg-[#CBA344]/10 border border-[#CBA344]/25 mb-3 sm:mb-5">
+              <span className="text-[#D7BC6D] text-[10px] sm:text-sm font-sans font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase">
                 {t("underPatronage")}
               </span>
             </div>
@@ -247,7 +257,7 @@ export default function LaunchPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.9, duration: 0.8 }}
-              className="font-serif font-bold text-[22px] sm:text-[28px] md:text-[34px] text-white mb-3 leading-snug"
+              className="font-serif font-bold text-[18px] sm:text-[28px] md:text-[34px] text-white mb-2 sm:mb-3 leading-snug px-2"
               style={{ textShadow: "0 2px 20px rgba(203,163,68,0.2)" }}
             >
               {t("patronName")}
@@ -258,7 +268,7 @@ export default function LaunchPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 2.2, duration: 0.6 }}
-              className="text-[#CBA344] text-sm sm:text-base font-sans font-medium mb-6"
+              className="text-[#CBA344] text-xs sm:text-base font-sans font-medium mb-4 sm:mb-6 px-2"
             >
               {t("patronTitle")}
             </motion.p>
@@ -269,17 +279,17 @@ export default function LaunchPage() {
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 2.5, duration: 0.8 }}
-            className="relative w-full max-w-lg mx-auto mb-6"
+            className="relative w-full max-w-lg mx-auto mb-4 sm:mb-6"
           >
             <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#CBA344]/30 via-[#CBA344]/10 to-transparent" />
-            <div className="relative rounded-2xl bg-[rgba(8,22,40,0.85)] backdrop-blur-xl px-8 py-7 border border-[#CBA344]/15">
+            <div className="relative rounded-2xl bg-[rgba(8,22,40,0.85)] backdrop-blur-xl px-5 py-5 sm:px-8 sm:py-7 border border-[#CBA344]/15">
               {/* Opening quote mark */}
-              <span className="absolute top-3 start-4 text-[#CBA344]/40 text-6xl font-serif leading-none select-none">&ldquo;</span>
-              <p className="text-[#E8EDF5] text-base sm:text-lg leading-[1.9] font-serif relative z-10 px-4 pt-4">
+              <span className="absolute top-2 start-3 sm:top-3 sm:start-4 text-[#CBA344]/40 text-4xl sm:text-6xl font-serif leading-none select-none">&ldquo;</span>
+              <p className="text-[#E8EDF5] text-sm sm:text-lg leading-[1.8] sm:leading-[1.9] font-serif relative z-10 px-2 sm:px-4 pt-3 sm:pt-4">
                 {t("quote")}
               </p>
               {/* Closing quote mark */}
-              <span className="absolute bottom-2 end-4 text-[#CBA344]/40 text-6xl font-serif leading-none select-none">&rdquo;</span>
+              <span className="absolute bottom-1 end-3 sm:bottom-2 sm:end-4 text-[#CBA344]/40 text-4xl sm:text-6xl font-serif leading-none select-none">&rdquo;</span>
             </div>
           </motion.div>
 
@@ -288,7 +298,7 @@ export default function LaunchPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 3, duration: 0.6 }}
-            className="text-[#8FAFC8] text-sm sm:text-base max-w-md mx-auto mb-8 leading-relaxed font-sans"
+            className="text-[#8FAFC8] text-xs sm:text-base max-w-md mx-auto mb-6 sm:mb-8 leading-relaxed font-sans px-2"
           >
             {t("platformDesc")}
           </motion.p>
@@ -301,32 +311,32 @@ export default function LaunchPage() {
             whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(203,163,68,0.4), 0 0 120px rgba(203,163,68,0.15)" }}
             whileTap={{ scale: 0.97 }}
             onClick={handleEnter}
-            className="group relative inline-flex items-center gap-3 px-12 py-4 rounded-full font-sans font-bold text-lg cursor-pointer shadow-[0_0_40px_rgba(203,163,68,0.25),0_0_80px_rgba(203,163,68,0.08)]"
+            className="group relative inline-flex items-center gap-2 sm:gap-3 px-8 sm:px-12 py-3 sm:py-4 rounded-full font-sans font-bold text-base sm:text-lg cursor-pointer shadow-[0_0_40px_rgba(203,163,68,0.25),0_0_80px_rgba(203,163,68,0.08)]"
             style={{
               background: "linear-gradient(135deg, #D7BC6D 0%, #CBA344 40%, #A07B28 100%)",
             }}
           >
             <span className="text-[#03080F]">{t("enterPlatform")}</span>
-            <ArrowIcon size={22} className="text-[#03080F] group-hover:translate-x-1 transition-transform duration-300" />
+            <ArrowIcon size={20} className="text-[#03080F] group-hover:translate-x-1 transition-transform duration-300" />
           </motion.button>
-        </div>
 
-        {/* ── Bottom attribution ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 3.6, duration: 0.8 }}
-          className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-2 z-10 px-4"
-        >
-          <span className="text-[#5A7A94] text-[11px] tracking-[0.2em] uppercase font-sans">
-            {t("poweredBy")}
-          </span>
-          <div className="flex items-center gap-4 flex-wrap justify-center">
-            <span className="text-[#8FAFC8] text-[12px] font-sans font-medium">{t("initiative")}</span>
-            <div className="w-1 h-1 rounded-full bg-[#CBA344]/50" />
-            <span className="text-[#8FAFC8] text-[12px] font-sans font-medium">{t("culturalCenter")}</span>
-          </div>
-        </motion.div>
+          {/* ── Bottom attribution (inside flow on mobile) ── */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 3.6, duration: 0.8 }}
+            className="flex flex-col items-center gap-1.5 sm:gap-2 mt-8 sm:mt-12 pb-4 px-4"
+          >
+            <span className="text-[#5A7A94] text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase font-sans">
+              {t("poweredBy")}
+            </span>
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
+              <span className="text-[#8FAFC8] text-[11px] sm:text-[12px] font-sans font-medium">{t("initiative")}</span>
+              <div className="w-1 h-1 rounded-full bg-[#CBA344]/50" />
+              <span className="text-[#8FAFC8] text-[11px] sm:text-[12px] font-sans font-medium">{t("culturalCenter")}</span>
+            </div>
+          </motion.div>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
