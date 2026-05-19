@@ -263,15 +263,6 @@ export default function LaunchPage() {
               {t("patronName")}
             </motion.h2>
 
-            {/* Patron title */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2.2, duration: 0.6 }}
-              className="text-[#CBA344] text-xs sm:text-base font-sans font-medium mb-4 sm:mb-6 px-2"
-            >
-              {t("patronTitle")}
-            </motion.p>
           </motion.div>
 
           {/* ── Quote card ── */}
