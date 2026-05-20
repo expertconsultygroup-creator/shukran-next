@@ -177,25 +177,31 @@ export default function SendMessage() {
                       </div>
 
                       <div className="relative group">
-                        <input
-                          type="tel"
-                          id="phone"
-                          required
-                          value={formData.phone}
-                          onChange={e => { setFormData({...formData, phone: e.target.value}); if (phoneError) setPhoneError(""); }}
-                          onBlur={() => {
-                            setPhoneTouched(true);
-                            if (formData.phone && !isValidUAEPhone(formData.phone)) {
-                              setPhoneError(t("invalidPhone"));
-                            } else {
-                              setPhoneError("");
-                            }
-                          }}
-                          className={`w-full bg-[var(--input-glass)] border-none border-b-2 text-[var(--text-on-input)] px-4 pt-6 pb-2 rounded-lg focus:ring-0 focus:outline-none transition-colors peer text-start ${phoneError ? "border-[var(--red)] focus:border-[var(--red)]" : "border-[var(--border)] focus:border-[var(--gold)]"}`}
-                          placeholder=" "
-                          dir="ltr"
-                          inputMode="tel"
-                        />
+                        <div className="flex items-stretch">
+                          <div className="flex items-center gap-1.5 bg-[var(--surface-2)] border-b-2 border-[var(--border)] px-3 pt-6 pb-2 rounded-s-lg text-[var(--muted-light)] text-sm font-mono select-none shrink-0">
+                            <span className="text-base leading-none">🇦🇪</span>
+                            <span>+971</span>
+                          </div>
+                          <input
+                            type="tel"
+                            id="phone"
+                            required
+                            value={formData.phone}
+                            onChange={e => { setFormData({...formData, phone: e.target.value}); if (phoneError) setPhoneError(""); }}
+                            onBlur={() => {
+                              setPhoneTouched(true);
+                              if (formData.phone && !isValidUAEPhone(formData.phone)) {
+                                setPhoneError(t("invalidPhone"));
+                              } else {
+                                setPhoneError("");
+                              }
+                            }}
+                            className={`w-full bg-[var(--input-glass)] border-none border-b-2 text-[var(--text-on-input)] px-4 pt-6 pb-2 rounded-e-lg focus:ring-0 focus:outline-none transition-colors peer text-start ${phoneError ? "border-[var(--red)] focus:border-[var(--red)]" : "border-[var(--border)] focus:border-[var(--gold)]"}`}
+                            placeholder=" "
+                            dir="ltr"
+                            inputMode="tel"
+                          />
+                        </div>
                         <label
                           htmlFor="phone"
                           className={`absolute end-4 top-4 transition-all peer-focus:-top-1 peer-focus:text-xs peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs ${phoneError ? "text-[var(--red)] peer-focus:text-[var(--red)] peer-[:not(:placeholder-shown)]:text-[var(--red)]" : "text-[var(--muted)] peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:text-[var(--gold)]"}`}
