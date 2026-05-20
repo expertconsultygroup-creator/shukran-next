@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, CheckCircle2, Upload, Download } from "lucide-react";
+import { Mic, CheckCircle2, Upload, Download, Phone, Check, AlertCircle } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
@@ -27,10 +27,21 @@ export default function SendMessage() {
   const [phoneTouched, setPhoneTouched] = useState(false);
   const recorder = useVoiceRecorder(60);
 
-  // UAE phone: 05X XXXXXXX (local) or +971/971/00971 5X XXXXXXX
-  const isValidUAEPhone = (phone: string): boolean => {
+  // UAE mobile: 05X XXXXXXX (10 digits) | UAE landline: 0[234679] XXXXXXX (9 digits)
+  // Accepts local part only (without +971) since prefix is shown in UI
+  const isValidUAELocal = (phone: string): boolean => {
     const digits = phone.replace(/[\s\-()]/g, "");
-    return /^(?:\+?971|00971)?0?5[0-9]\d{7}$/.test(digits);
+    // Mobile: 05X followed by 7 digits = 10 digits total
+    if (/^0?5[0-9]\d{7}$/.test(digits)) return true;
+    // Landline: 0[234679] followed by 7 digits = 9 digits total
+    if (/^0?[234679]\d{7}$/.test(digits)) return true;
+    return false;
+  };
+
+  // Normalize to +971 format for API
+  const normalizePhone = (phone: string): string => {
+    const digits = phone.replace(/[\s\-()]/g, "").replace(/^0/, "");
+    return `+971${digits}`;
   };
   const [formData, setFormData] = useState({
     name: "",
@@ -44,7 +55,7 @@ export default function SendMessage() {
     e.preventDefault();
     setPhoneTouched(true);
 
-    if (!isValidUAEPhone(formData.phone)) {
+    if (!isValidUAELocal(formData.phone)) {
       setPhoneError(t("invalidPhone"));
       return;
     }
@@ -75,7 +86,7 @@ export default function SendMessage() {
           country_code: "AE",
           country_name: t("uae"),
           category: formData.category,
-          phone: formData.phone,
+          phone: normalizePhone(formData.phone),
           emirate: formData.emirate,
           ...(voice_url && { voice_url }),
         }),
@@ -176,42 +187,76 @@ export default function SendMessage() {
                         </label>
                       </div>
 
-                      <div className="relative group">
-                        <div className="flex items-stretch">
-                          <div className="flex items-center gap-1.5 bg-[var(--surface-2)] border-b-2 border-[var(--border)] px-3 pt-6 pb-2 rounded-s-lg text-[var(--muted-light)] text-sm font-mono select-none shrink-0">
-                            <span className="text-base leading-none">🇦🇪</span>
-                            <span>+971</span>
+                      <div className="space-y-2">
+                        <label htmlFor="phone" className="block text-[var(--muted)] text-sm px-1 text-start">
+                          {t("phone")}
+                        </label>
+                        <div
+                          className={`flex items-center rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                            phoneError
+                              ? "border-[var(--red)] shadow-[0_0_12px_rgba(216,55,49,0.15)]"
+                              : phoneTouched && formData.phone && isValidUAELocal(formData.phone)
+                              ? "border-[var(--green)] shadow-[0_0_12px_rgba(63,142,80,0.15)]"
+                              : "border-[var(--border)] focus-within:border-[var(--gold)] focus-within:shadow-[0_0_12px_rgba(203,163,68,0.15)]"
+                          }`}
+                        >
+                          {/* UAE prefix badge */}
+                          <div className="flex items-center gap-2 bg-[var(--surface-2)] px-3 sm:px-4 py-3 sm:py-3.5 border-e border-[var(--border)] select-none shrink-0">
+                            <span className="text-lg sm:text-xl leading-none">🇦🇪</span>
+                            <span className="text-[var(--white)] font-mono font-bold text-sm sm:text-base">+971</span>
                           </div>
+
+                          {/* Phone input */}
                           <input
                             type="tel"
                             id="phone"
                             required
                             value={formData.phone}
-                            onChange={e => { setFormData({...formData, phone: e.target.value}); if (phoneError) setPhoneError(""); }}
+                            onChange={e => {
+                              const val = e.target.value.replace(/[^\d\s\-]/g, "");
+                              setFormData({...formData, phone: val});
+                              if (phoneError) setPhoneError("");
+                            }}
                             onBlur={() => {
                               setPhoneTouched(true);
-                              if (formData.phone && !isValidUAEPhone(formData.phone)) {
+                              if (formData.phone && !isValidUAELocal(formData.phone)) {
                                 setPhoneError(t("invalidPhone"));
                               } else {
                                 setPhoneError("");
                               }
                             }}
-                            className={`w-full bg-[var(--input-glass)] border-none border-b-2 text-[var(--text-on-input)] px-4 pt-6 pb-2 rounded-e-lg focus:ring-0 focus:outline-none transition-colors peer text-start ${phoneError ? "border-[var(--red)] focus:border-[var(--red)]" : "border-[var(--border)] focus:border-[var(--gold)]"}`}
-                            placeholder=" "
+                            className="flex-1 min-w-0 bg-[var(--input-glass)] text-[var(--text-on-input)] px-3 sm:px-4 py-3 sm:py-3.5 text-base sm:text-lg font-mono tracking-wider focus:ring-0 focus:outline-none placeholder:text-[var(--muted)] placeholder:font-sans placeholder:text-sm placeholder:tracking-normal"
+                            placeholder={isRtl ? "05X XXXX XXX" : "05X XXXX XXX"}
                             dir="ltr"
                             inputMode="tel"
+                            maxLength={14}
                           />
+
+                          {/* Status icon */}
+                          <div className="px-3 shrink-0">
+                            {phoneError ? (
+                              <AlertCircle className="w-5 h-5 text-[var(--red)]" />
+                            ) : phoneTouched && formData.phone && isValidUAELocal(formData.phone) ? (
+                              <div className="w-5 h-5 rounded-full bg-[var(--green)] flex items-center justify-center">
+                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                              </div>
+                            ) : (
+                              <Phone className="w-5 h-5 text-[var(--muted)]" />
+                            )}
+                          </div>
                         </div>
-                        <label
-                          htmlFor="phone"
-                          className={`absolute end-4 top-4 transition-all peer-focus:-top-1 peer-focus:text-xs peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs ${phoneError ? "text-[var(--red)] peer-focus:text-[var(--red)] peer-[:not(:placeholder-shown)]:text-[var(--red)]" : "text-[var(--muted)] peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:text-[var(--gold)]"}`}
-                        >
-                          {t("phone")}
-                        </label>
+
+                        {/* Feedback row */}
                         {phoneError ? (
-                          <p className="text-[var(--red)] text-sm mt-2 px-1 font-bold">{phoneError}</p>
+                          <p className="text-[var(--red)] text-sm px-1 font-bold flex items-center gap-1.5">
+                            {phoneError}
+                          </p>
                         ) : (
-                          <p className="text-[var(--muted)] text-xs mt-1.5 px-1">{t("phoneHint")}</p>
+                          <div className="flex items-center gap-3 px-1 text-xs text-[var(--muted)]">
+                            <span>{isRtl ? "جوال" : "Mobile"}: 05X XXX XXXX</span>
+                            <span className="text-[var(--border)]">|</span>
+                            <span>{isRtl ? "ثابت" : "Landline"}: 0X XXX XXXX</span>
+                          </div>
                         )}
                       </div>
 
@@ -311,7 +356,7 @@ export default function SendMessage() {
 
                       <button
                         type="submit"
-                        disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate || (phoneTouched && !isValidUAEPhone(formData.phone))}
+                        disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate || !isValidUAELocal(formData.phone)}
                         className="w-full h-12 sm:h-14 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-base sm:text-lg shadow-[var(--glow-gold)] hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2 sm:mt-4"
                       >
                         {isSubmitting ? (

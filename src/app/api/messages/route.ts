@@ -12,7 +12,12 @@ const messageSchema = z.object({
   country_name: z.string().min(1).default("الإمارات"),
   category: z.enum(["مواطن", "مقيم"]),
   phone: z.string().min(7).max(20).refine(
-    (val) => /^(?:\+?971|00971)?0?5[0-9]\d{7}$/.test(val.replace(/[\s\-()]/g, "")),
+    (val) => {
+      const digits = val.replace(/[\s\-()]/g, "");
+      // Mobile: +971 5X XXXXXXX  |  Landline: +971 [234679] XXXXXXX
+      return /^(?:\+?971|00971)?0?5[0-9]\d{7}$/.test(digits) ||
+             /^(?:\+?971|00971)?0?[234679]\d{7}$/.test(digits);
+    },
     { message: "Invalid UAE phone number" }
   ),
   emirate: z.string().min(1),
