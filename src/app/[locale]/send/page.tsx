@@ -24,7 +24,14 @@ export default function SendMessage() {
   const [displayId, setDisplayId] = useState("");
   const [generatingCert, setGeneratingCert] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const recorder = useVoiceRecorder(60);
+
+  // UAE phone: 05X XXXXXXX (local) or +971/971/00971 5X XXXXXXX
+  const isValidUAEPhone = (phone: string): boolean => {
+    const digits = phone.replace(/[\s\-()]/g, "");
+    return /^(?:\+?971|00971)?0?5[0-9]\d{7}$/.test(digits);
+  };
   const [formData, setFormData] = useState({
     name: "",
     message: "",
@@ -35,6 +42,13 @@ export default function SendMessage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPhoneTouched(true);
+
+    if (!isValidUAEPhone(formData.phone)) {
+      setPhoneError(t("invalidPhone"));
+      return;
+    }
+
     setIsSubmitting(true);
     setPhoneError("");
 
@@ -159,7 +173,15 @@ export default function SendMessage() {
                         id="phone"
                         required
                         value={formData.phone}
-                        onChange={e => { setFormData({...formData, phone: e.target.value}); setPhoneError(""); }}
+                        onChange={e => { setFormData({...formData, phone: e.target.value}); if (phoneError) setPhoneError(""); }}
+                        onBlur={() => {
+                          setPhoneTouched(true);
+                          if (formData.phone && !isValidUAEPhone(formData.phone)) {
+                            setPhoneError(t("invalidPhone"));
+                          } else {
+                            setPhoneError("");
+                          }
+                        }}
                         className={`w-full bg-[var(--input-glass)] border-none border-b-2 text-[var(--text-on-input)] px-4 pt-6 pb-2 focus:ring-0 focus:outline-none transition-colors peer text-start ${phoneError ? "border-[var(--red)] focus:border-[var(--red)]" : "border-[var(--border)] focus:border-[var(--gold)]"}`}
                         placeholder=" "
                         dir="ltr"
@@ -171,8 +193,10 @@ export default function SendMessage() {
                       >
                         {t("phone")}
                       </label>
-                      {phoneError && (
+                      {phoneError ? (
                         <p className="text-[var(--red)] text-sm mt-2 px-1 font-bold">{phoneError}</p>
+                      ) : (
+                        <p className="text-[var(--muted)] text-xs mt-1.5 px-1">{t("phoneHint")}</p>
                       )}
                     </div>
 
@@ -269,7 +293,7 @@ export default function SendMessage() {
 
                     <button
                       type="submit"
-                      disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate}
+                      disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate || (phoneTouched && !isValidUAEPhone(formData.phone))}
                       className="w-full h-14 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-lg shadow-[var(--glow-gold)] hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4"
                     >
                       {isSubmitting ? (

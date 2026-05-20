@@ -99,7 +99,9 @@
     "generatingCertificate": "Generating certificate...",
     "recording": "Recording...",
     "micPermissionDenied": "Microphone permission denied",
-    "duplicatePhone": "This phone number has already been used to send a message. Each phone number can only be used once."
+    "duplicatePhone": "This phone number has already been used to send a message. Each phone number can only be used once.",
+    "invalidPhone": "Please enter a valid UAE phone number (e.g. 0501234567 or +971501234567)",
+    "phoneHint": "UAE number: 05XXXXXXXX"
   },
   "messages": {
     "title": "Messages",

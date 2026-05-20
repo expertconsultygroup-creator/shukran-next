@@ -11,7 +11,10 @@ const messageSchema = z.object({
   country_code: z.string().length(2).default("AE"),
   country_name: z.string().min(1).default("الإمارات"),
   category: z.enum(["مواطن", "مقيم"]),
-  phone: z.string().min(7).max(20),
+  phone: z.string().min(7).max(20).refine(
+    (val) => /^(?:\+?971|00971)?0?5[0-9]\d{7}$/.test(val.replace(/[\s\-()]/g, "")),
+    { message: "Invalid UAE phone number" }
+  ),
   emirate: z.string().min(1),
   voice_url: z.string().url().optional(),
 });
