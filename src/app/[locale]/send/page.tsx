@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, CheckCircle2, Upload, Download, Phone, Check, AlertCircle } from "lucide-react";
+import { Mic, CheckCircle2, Upload, Download, Phone, Check, AlertCircle, ChevronDown } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
@@ -42,6 +42,26 @@ export default function SendMessage() {
   const normalizePhone = (phone: string): string => {
     const digits = phone.replace(/[\s\-()]/g, "").replace(/^0/, "");
     return `+971${digits}`;
+  };
+
+  // Auto-format phone input: strip leading 0 (since +971 is shown), add spaces
+  const formatUAEPhone = (input: string): string => {
+    let digits = input.replace(/\D/g, "");
+    if (digits.startsWith("0")) digits = digits.slice(1);
+    if (digits.startsWith("5")) {
+      // Mobile: 5X XXX XXXX (9 digits)
+      digits = digits.slice(0, 9);
+      if (digits.length <= 2) return digits;
+      if (digits.length <= 5) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
+      return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+    } else if (digits.length > 0) {
+      // Landline: X XXX XXXX (8 digits)
+      digits = digits.slice(0, 8);
+      if (digits.length <= 1) return digits;
+      if (digits.length <= 4) return `${digits.slice(0, 1)} ${digits.slice(1)}`;
+      return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(4)}`;
+    }
+    return "";
   };
   const [formData, setFormData] = useState({
     name: "",
@@ -181,7 +201,7 @@ export default function SendMessage() {
                         />
                         <label
                           htmlFor="name"
-                          className="absolute end-4 top-4 text-[var(--muted)] transition-all peer-focus:-top-1 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
+                          className="absolute start-4 top-4 text-[var(--muted)] transition-all peer-focus:-top-1 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:-top-1 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
                         >
                           {t("name")}
                         </label>
@@ -213,8 +233,8 @@ export default function SendMessage() {
                             required
                             value={formData.phone}
                             onChange={e => {
-                              const val = e.target.value.replace(/[^\d\s\-]/g, "");
-                              setFormData({...formData, phone: val});
+                              const formatted = formatUAEPhone(e.target.value);
+                              setFormData({...formData, phone: formatted});
                               if (phoneError) setPhoneError("");
                             }}
                             onBlur={() => {
@@ -226,10 +246,10 @@ export default function SendMessage() {
                               }
                             }}
                             className="flex-1 min-w-0 bg-[var(--input-glass)] text-[var(--text-on-input)] px-3 sm:px-4 py-3 sm:py-3.5 text-base sm:text-lg font-mono tracking-wider focus:ring-0 focus:outline-none placeholder:text-[var(--muted)] placeholder:font-sans placeholder:text-sm placeholder:tracking-normal"
-                            placeholder={isRtl ? "05X XXXX XXX" : "05X XXXX XXX"}
+                            placeholder="5X XXX XXXX"
                             dir="ltr"
                             inputMode="tel"
-                            maxLength={14}
+                            maxLength={12}
                           />
 
                           {/* Status icon */}
@@ -253,9 +273,9 @@ export default function SendMessage() {
                           </p>
                         ) : (
                           <div className="flex items-center gap-3 px-1 text-xs text-[var(--muted)]">
-                            <span>{isRtl ? "جوال" : "Mobile"}: 05X XXX XXXX</span>
+                            <span>{isRtl ? "جوال" : "Mobile"}: 5X XXX XXXX</span>
                             <span className="text-[var(--border)]">|</span>
-                            <span>{isRtl ? "ثابت" : "Landline"}: 0X XXX XXXX</span>
+                            <span>{isRtl ? "ثابت" : "Landline"}: X XXX XXXX</span>
                           </div>
                         )}
                       </div>
@@ -264,20 +284,23 @@ export default function SendMessage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("emirate")}</label>
-                          <select
-                            value={formData.emirate}
-                            onChange={e => setFormData({...formData, emirate: e.target.value})}
-                            required
-                            className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
-                            dir="auto"
-                          >
-                            <option value="" disabled>{t("selectEmirate")}</option>
-                            {UAE_EMIRATES.map((e) => (
-                              <option key={e.id} value={e.id}>
-                                {isRtl ? e.name_ar : e.name_en}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="relative">
+                            <select
+                              value={formData.emirate}
+                              onChange={e => setFormData({...formData, emirate: e.target.value})}
+                              required
+                              className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 pe-10 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
+                              dir="auto"
+                            >
+                              <option value="" disabled>{t("selectEmirate")}</option>
+                              {UAE_EMIRATES.map((e) => (
+                                <option key={e.id} value={e.id}>
+                                  {isRtl ? e.name_ar : e.name_en}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted)] pointer-events-none" />
+                          </div>
                         </div>
 
                         <div>
@@ -316,7 +339,7 @@ export default function SendMessage() {
                         ></textarea>
                         <label
                           htmlFor="message"
-                          className="absolute end-4 top-6 sm:top-8 text-[var(--muted)] transition-all peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
+                          className="absolute start-4 top-6 sm:top-8 text-[var(--muted)] transition-all peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
                         >
                           {t("message")}
                         </label>

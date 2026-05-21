@@ -100,8 +100,8 @@
     "recording": "جاري التسجيل...",
     "micPermissionDenied": "تم رفض إذن الميكروفون",
     "duplicatePhone": "رقم الهاتف هذا مستخدم بالفعل لإرسال رسالة. يمكن استخدام كل رقم هاتف مرة واحدة فقط.",
-    "invalidPhone": "يرجى إدخال رقم إماراتي صحيح — جوال (5X) أو ثابت (0X)",
-    "phoneHint": "رقم إماراتي: 5XXXXXXXX"
+    "invalidPhone": "يرجى إدخال رقم إماراتي صحيح — جوال (5X XXX XXXX) أو ثابت (X XXX XXXX)",
+    "phoneHint": "أدخل رقمك بعد 971+"
   },
   "messages": {
     "title": "الرسائل",
