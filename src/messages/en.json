@@ -100,8 +100,8 @@
     "recording": "Recording...",
     "micPermissionDenied": "Microphone permission denied",
     "duplicatePhone": "This phone number has already been used to send a message. Each phone number can only be used once.",
-    "invalidPhone": "Please enter a valid UAE number — mobile (05X) or landline (0X)",
-    "phoneHint": "UAE number: 05XXXXXXXX"
+    "invalidPhone": "Please enter a valid UAE number — mobile (5X) or landline (0X)",
+    "phoneHint": "UAE number: 5XXXXXXXX"
   },
   "messages": {
     "title": "Messages",
