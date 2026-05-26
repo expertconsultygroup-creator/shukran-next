@@ -56,21 +56,23 @@ export function MessageCard({ message }: { message: any }) {
         </div>
       </div>
 
-      <div className="relative text-start">
-        <p className={`font-serif text-[var(--white)] leading-[2.2] text-lg ${!expanded ? "line-clamp-3" : ""}`}>
-          {message.text}
-        </p>
+      {message.text && (
+        <div className="relative text-start">
+          <p className={`font-serif text-[var(--white)] leading-[2.2] text-lg ${!expanded ? "line-clamp-3" : ""}`}>
+            {message.text}
+          </p>
 
-        {message.text.length > 100 && !expanded && (
-          <button
-            onClick={() => setExpanded(true)}
-            className="text-[var(--gold-light)] text-sm font-bold mt-2 hover:underline inline-block"
-            dir={isRtl ? "rtl" : "ltr"}
-          >
-            {t("readMore")}
-          </button>
-        )}
-      </div>
+          {message.text.length > 100 && !expanded && (
+            <button
+              onClick={() => setExpanded(true)}
+              className="text-[var(--gold-light)] text-sm font-bold mt-2 hover:underline inline-block"
+              dir={isRtl ? "rtl" : "ltr"}
+            >
+              {t("readMore")}
+            </button>
+          )}
+        </div>
+      )}
 
       {message.voice_url && (
         <div className="mt-4">

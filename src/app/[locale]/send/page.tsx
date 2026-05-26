@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, CheckCircle2, Upload, Download, Phone, Check, AlertCircle, ChevronDown } from "lucide-react";
+import { Mic, CheckCircle2, Upload, Download, Phone, Check, AlertCircle, ChevronDown, MessageSquareText, AudioLines, Award, X } from "lucide-react";
 import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
@@ -20,11 +20,13 @@ export default function SendMessage() {
   const isRtl = locale === "ar";
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [displayId, setDisplayId] = useState("");
+  const [successName, setSuccessName] = useState("");
   const [generatingCert, setGeneratingCert] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [phoneTouched, setPhoneTouched] = useState(false);
+  const [messageType, setMessageType] = useState<"text" | "voice" | "both">("text");
   const recorder = useVoiceRecorder(60);
 
   // UAE mobile: 05X XXXXXXX (10 digits) | UAE landline: 0[234679] XXXXXXX (9 digits)
@@ -80,6 +82,14 @@ export default function SendMessage() {
       return;
     }
 
+    // Validate at least one content type is provided
+    const hasText = formData.message.trim().length > 0;
+    const hasVoice = !!recorder.audioBlob;
+    if (!hasText && !hasVoice) {
+      toast.error(t("needTextOrVoice"));
+      return;
+    }
+
     setIsSubmitting(true);
     setPhoneError("");
 
@@ -101,7 +111,7 @@ export default function SendMessage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
-          text: formData.message,
+          ...(formData.message.trim() && { text: formData.message.trim() }),
           nationality: `🇦🇪 ${t("uae")}`,
           country_code: "AE",
           country_name: t("uae"),
@@ -124,10 +134,13 @@ export default function SendMessage() {
 
       const data = await res.json();
       setDisplayId(data.message?.display_id || "");
-      setIsSuccess(true);
+      setSuccessName(formData.name);
+      setShowSuccessPopup(true);
 
       const colors = ['#D83731', '#3F8E50', '#CBA344', '#FFFFFF', '#000000'];
       confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors });
+      setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.4, x: 0.3 }, colors }), 400);
+      setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.4, x: 0.7 }, colors }), 600);
     } catch (error) {
       console.error("Submission error:", error);
       toast.error(locale === "ar" ? "حدث خطأ أثناء الإرسال" : "Failed to send message");
@@ -146,7 +159,7 @@ export default function SendMessage() {
     setGeneratingCert(true);
     try {
       const { downloadCertificate } = await import("@/lib/generate-certificate");
-      await downloadCertificate({ name: formData.name, displayId, locale: locale as "ar" | "en" });
+      await downloadCertificate({ name: successName, displayId, locale: locale as "ar" | "en" });
     } catch {
       toast.error("Failed to generate certificate");
     } finally {
@@ -173,13 +186,9 @@ export default function SendMessage() {
 
         <div className="flex flex-col lg:flex-row gap-5 lg:gap-12 text-start" dir="auto">
           <div className="w-full lg:w-[60%]">
-            <AnimatePresence mode="wait">
-              {!isSuccess ? (
                 <motion.div
-                  key="form"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
                   className="bg-[var(--card-glass)] backdrop-blur-[20px] rounded-2xl border-t-4 border-[var(--gold)] border-x border-b border-[var(--border)] shadow-2xl p-4 sm:p-6 md:p-10 relative overflow-hidden"
                 >
                   <ShamsaPattern className="opacity-[0.03] z-0" />
@@ -324,62 +333,90 @@ export default function SendMessage() {
                         </div>
                       </div>
 
-                      <div className="relative group pt-2 sm:pt-4">
-                        <textarea
-                          id="message"
-                          required
-                          rows={3}
-                          minLength={10}
-                          maxLength={500}
-                          value={formData.message}
-                          onChange={e => setFormData({...formData, message: e.target.value})}
-                          className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 pt-6 pb-2 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors peer resize-none font-serif leading-loose text-start"
-                          placeholder=" "
-                          dir="auto"
-                        ></textarea>
-                        <label
-                          htmlFor="message"
-                          className="absolute start-4 top-6 sm:top-8 text-[var(--muted)] transition-all peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
-                        >
-                          {t("message")}
-                        </label>
-                        <div className="absolute start-2 bottom-2 text-xs font-mono text-[var(--muted)]">
-                          {formData.message.length}/500
+                      {/* Message Type Selector */}
+                      <div className="pt-2 sm:pt-4">
+                        <label className="block text-[var(--muted)] text-sm mb-3 px-1 text-start">{t("messageTypeLabel")}</label>
+                        <div className="flex gap-2 sm:gap-3">
+                          {(["text", "voice", "both"] as const).map(type => (
+                            <button
+                              type="button"
+                              key={type}
+                              onClick={() => setMessageType(type)}
+                              className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl font-sans font-bold text-xs sm:text-sm transition-all ${
+                                messageType === type
+                                  ? 'bg-[var(--gold)] text-[var(--bg-deep)] shadow-[var(--glow-gold)]'
+                                  : 'bg-[var(--surface-2)] text-[var(--muted-light)] hover:bg-[rgba(203,163,68,0.1)] hover:text-[var(--gold)] border border-[var(--border)]'
+                              }`}
+                            >
+                              {type === "text" && <MessageSquareText className="w-4 h-4" />}
+                              {type === "voice" && <AudioLines className="w-4 h-4" />}
+                              {type === "both" && <><MessageSquareText className="w-3.5 h-3.5" /><span>+</span><AudioLines className="w-3.5 h-3.5" /></>}
+                              {t(`msgType_${type}`)}
+                            </button>
+                          ))}
                         </div>
                       </div>
 
-                      <div className="pt-3 sm:pt-4 border-t border-[var(--border)]">
-                        <label className="block text-[var(--muted)] text-sm mb-3 sm:mb-4 px-1 text-start">{t("audioOptional")}</label>
-                        {recorder.error && (
-                          <p className="text-[var(--red)] text-sm mb-3 px-1">{t("micPermissionDenied")}</p>
-                        )}
-                        {!recorder.audioUrl && !recorder.isRecording ? (
-                          <div className="flex flex-col items-center justify-center py-4 sm:py-6">
-                            <button type="button" onClick={recorder.startRecording} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--surface-2)] border-2 border-[var(--gold-dim)] flex items-center justify-center text-[var(--gold)] hover:scale-105 hover:bg-[var(--gold-dim)] transition-all shadow-[var(--glow-gold)] mb-2 sm:mb-3">
-                              <Mic className="w-7 h-7 sm:w-8 sm:h-8" />
-                            </button>
-                            <span className="text-[var(--muted)] text-xs sm:text-sm">{t("clickToRecord")}</span>
+                      {/* Text Message - shown for "text" and "both" */}
+                      {(messageType === "text" || messageType === "both") && (
+                        <div className="relative group pt-2 sm:pt-4">
+                          <textarea
+                            id="message"
+                            rows={3}
+                            maxLength={500}
+                            value={formData.message}
+                            onChange={e => setFormData({...formData, message: e.target.value})}
+                            className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 pt-6 pb-2 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors peer resize-none font-serif leading-loose text-start"
+                            placeholder=" "
+                            dir="auto"
+                          ></textarea>
+                          <label
+                            htmlFor="message"
+                            className="absolute start-4 top-6 sm:top-8 text-[var(--muted)] transition-all peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--gold)] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-[var(--gold)]"
+                          >
+                            {t("message")}
+                          </label>
+                          <div className="absolute start-2 bottom-2 text-xs font-mono text-[var(--muted)]">
+                            {formData.message.length}/500
                           </div>
-                        ) : recorder.isRecording ? (
-                          <div className="flex flex-col items-center justify-center py-4 sm:py-6">
-                            <button type="button" onClick={recorder.stopRecording} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--red-dim)] border-2 border-[var(--red)] flex items-center justify-center text-[var(--red)] hover:scale-105 transition-all shadow-[var(--glow-red)] animate-pulse mb-3 sm:mb-4 relative">
-                              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[var(--red)] rounded-sm"></div>
-                            </button>
-                            <div className="flex items-center gap-4">
-                              <span className="font-mono text-[var(--red)] font-bold">{formatTime(recorder.recordingTime)}</span>
+                        </div>
+                      )}
+
+                      {/* Voice Recording - shown for "voice" and "both" */}
+                      {(messageType === "voice" || messageType === "both") && (
+                        <div className="pt-3 sm:pt-4 border-t border-[var(--border)]">
+                          <label className="block text-[var(--muted)] text-sm mb-3 sm:mb-4 px-1 text-start">{t("voiceMessage")}</label>
+                          {recorder.error && (
+                            <p className="text-[var(--red)] text-sm mb-3 px-1">{t("micPermissionDenied")}</p>
+                          )}
+                          {!recorder.audioUrl && !recorder.isRecording ? (
+                            <div className="flex flex-col items-center justify-center py-4 sm:py-6">
+                              <button type="button" onClick={recorder.startRecording} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--surface-2)] border-2 border-[var(--gold-dim)] flex items-center justify-center text-[var(--gold)] hover:scale-105 hover:bg-[var(--gold-dim)] transition-all shadow-[var(--glow-gold)] mb-2 sm:mb-3">
+                                <Mic className="w-7 h-7 sm:w-8 sm:h-8" />
+                              </button>
+                              <span className="text-[var(--muted)] text-xs sm:text-sm">{t("clickToRecord")}</span>
                             </div>
-                          </div>
-                        ) : recorder.audioUrl ? (
-                          <div className="py-3 sm:py-4 flex items-center justify-between bg-[var(--surface-2)] px-3 sm:px-4 rounded-xl border border-[var(--border)]">
-                            <AudioPlayer src={recorder.audioUrl} className="flex-1 bg-transparent border-none px-0" />
-                            <button type="button" onClick={recorder.deleteRecording} className="text-[var(--red-light)] text-sm font-bold mx-2 sm:mx-4 hover:underline whitespace-nowrap">{tCommon("delete")}</button>
-                          </div>
-                        ) : null}
-                      </div>
+                          ) : recorder.isRecording ? (
+                            <div className="flex flex-col items-center justify-center py-4 sm:py-6">
+                              <button type="button" onClick={recorder.stopRecording} className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--red-dim)] border-2 border-[var(--red)] flex items-center justify-center text-[var(--red)] hover:scale-105 transition-all shadow-[var(--glow-red)] animate-pulse mb-3 sm:mb-4 relative">
+                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[var(--red)] rounded-sm"></div>
+                              </button>
+                              <div className="flex items-center gap-4">
+                                <span className="font-mono text-[var(--red)] font-bold">{formatTime(recorder.recordingTime)}</span>
+                              </div>
+                            </div>
+                          ) : recorder.audioUrl ? (
+                            <div className="py-3 sm:py-4 flex items-center justify-between bg-[var(--surface-2)] px-3 sm:px-4 rounded-xl border border-[var(--border)]">
+                              <AudioPlayer src={recorder.audioUrl} className="flex-1 bg-transparent border-none px-0" />
+                              <button type="button" onClick={recorder.deleteRecording} className="text-[var(--red-light)] text-sm font-bold mx-2 sm:mx-4 hover:underline whitespace-nowrap">{tCommon("delete")}</button>
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
 
                       <button
                         type="submit"
-                        disabled={isSubmitting || !formData.name || !formData.message || !formData.phone || !formData.emirate || !isValidUAELocal(formData.phone)}
+                        disabled={isSubmitting || !formData.name || !formData.phone || !formData.emirate || !isValidUAELocal(formData.phone) || (messageType === "text" && !formData.message.trim()) || (messageType === "voice" && !recorder.audioBlob) || (messageType === "both" && !formData.message.trim() && !recorder.audioBlob)}
                         className="w-full h-12 sm:h-14 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-base sm:text-lg shadow-[var(--glow-gold)] hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2 sm:mt-4"
                       >
                         {isSubmitting ? (
@@ -394,51 +431,6 @@ export default function SendMessage() {
                     </form>
                   </div>
                 </motion.div>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-[var(--card-glass)] backdrop-blur-[20px] rounded-2xl border border-[var(--gold-dim)] shadow-[var(--glow-gold)] p-6 sm:p-8 md:p-12 text-center relative overflow-hidden"
-                >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 rounded-full bg-[var(--green-dim)] flex items-center justify-center relative">
-                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <motion.path
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={3}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 border-2 border-[var(--green)] rounded-full animate-ping opacity-20"></div>
-                  </div>
-
-                  <h2 className="font-sans font-black text-2xl sm:text-3xl text-[var(--gold)] mb-2">{t("successTitle")}</h2>
-                  <p className="text-[var(--white)] text-base sm:text-lg mb-6 sm:mb-8">{t("successText", { name: formData.name })}</p>
-
-                  {displayId && (
-                    <div className="bg-[var(--surface-2)] border border-[var(--gold-dim)] rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 inline-block shadow-inner mx-auto">
-                      <p className="text-[var(--muted-light)] text-sm mb-1">{t("docNumber")}</p>
-                      <p className="font-mono font-bold text-xl sm:text-2xl text-[var(--gold)]">#{displayId}</p>
-                    </div>
-                  )}
-
-                  <div className="flex justify-center">
-                    <button
-                      onClick={handleDownloadCertificate}
-                      disabled={generatingCert}
-                      className="flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-bold disabled:opacity-50"
-                    >
-                      <Download size={18} />
-                      {generatingCert ? t("generatingCertificate") : t("downloadCertificate")}
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* Desktop sidebar - hidden on mobile (counter shown above instead) */}
@@ -488,6 +480,152 @@ export default function SendMessage() {
           </div>
         </div>
       </div>
+
+      {/* ─── Success Popup Modal ─── */}
+      <AnimatePresence>
+        {showSuccessPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            onClick={() => setShowSuccessPopup(false)}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md bg-gradient-to-b from-[var(--surface)] to-[var(--bg-deep)] border border-[var(--gold-dim)] rounded-3xl shadow-2xl overflow-hidden"
+            >
+              {/* Gold top accent */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[var(--gold)] via-[var(--gold-light)] to-[var(--gold)]" />
+
+              {/* Decorative shimmer */}
+              <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <ShamsaPattern className="opacity-100" />
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setShowSuccessPopup(false)}
+                className="absolute top-4 end-4 z-10 w-8 h-8 rounded-full bg-[var(--surface-2)] flex items-center justify-center text-[var(--muted)] hover:text-[var(--white)] hover:bg-[var(--surface)] transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="relative z-10 p-6 sm:p-8 text-center">
+                {/* Success icon with animation */}
+                <div className="relative mx-auto w-20 h-20 mb-5">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", damping: 12, stiffness: 200, delay: 0.1 }}
+                    className="w-full h-full rounded-full bg-gradient-to-br from-[var(--green)] to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30"
+                  >
+                    <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <motion.path
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </motion.div>
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1.4, opacity: 0 }}
+                    transition={{ duration: 1.2, delay: 0.3, repeat: 2 }}
+                    className="absolute inset-0 rounded-full border-2 border-[var(--green)]"
+                  />
+                </div>
+
+                {/* Title */}
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="font-sans font-black text-2xl sm:text-3xl text-[var(--gold)] mb-2"
+                >
+                  {t("popupTitle")}
+                </motion.h2>
+
+                {/* Subtitle */}
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-[var(--muted-light)] text-sm sm:text-base mb-5 leading-relaxed"
+                >
+                  {t("popupSubtitle", { name: successName })}
+                </motion.p>
+
+                {/* Document Number */}
+                {displayId && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-[var(--surface-2)] border border-[var(--gold-dim)] rounded-2xl p-4 mb-5 shadow-inner"
+                  >
+                    <p className="text-[var(--muted)] text-xs uppercase tracking-wider mb-1">{t("docNumber")}</p>
+                    <p className="font-mono font-black text-2xl text-[var(--gold)] tracking-wider">#{displayId}</p>
+                  </motion.div>
+                )}
+
+                {/* Certificate section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="bg-gradient-to-br from-[var(--gold-dim)] to-transparent border border-[var(--gold-dim)] rounded-2xl p-4 mb-5"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <Award className="text-[var(--gold)]" size={20} />
+                    <span className="text-[var(--gold)] font-bold text-sm">{t("popupCertReady")}</span>
+                  </div>
+                  <button
+                    onClick={handleDownloadCertificate}
+                    disabled={generatingCert}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-base shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
+                  >
+                    {generatingCert ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-[var(--bg-deep)] border-t-transparent rounded-full animate-spin" />
+                        {t("generatingCertificate")}
+                      </>
+                    ) : (
+                      <>
+                        <Download size={18} />
+                        {t("popupDownloadNow")}
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+
+                {/* Close button */}
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  onClick={() => setShowSuccessPopup(false)}
+                  className="text-[var(--muted)] hover:text-[var(--white)] text-sm font-bold transition-colors"
+                >
+                  {t("popupClose")}
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

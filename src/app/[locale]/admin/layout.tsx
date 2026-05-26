@@ -4,7 +4,7 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, MessageSquare, PieChart, Film, ScrollText,
-  Settings, LogOut, Bell,
+  Settings, LogOut, Bell, Printer,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations, useLocale } from "next-intl";
@@ -25,6 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menu = [
     { href: "/admin", icon: LayoutDashboard, label: t("dashboard") },
     { href: "/admin/messages", icon: MessageSquare, label: t("manageMessages") },
+    { href: "/admin/certificate", icon: Printer, label: t("printCertificate") },
     { href: "/admin/media", icon: Film, label: t("manageMedia") },
     { href: "/admin/poetry", icon: ScrollText, label: t("managePoetry") },
   ];

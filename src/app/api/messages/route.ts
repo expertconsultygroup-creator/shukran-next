@@ -6,7 +6,7 @@ import { createHash } from "crypto";
 
 const messageSchema = z.object({
   name: z.string().min(1).max(100),
-  text: z.string().min(10).max(500),
+  text: z.string().max(500).optional().default(""),
   nationality: z.string().min(1),
   country_code: z.string().length(2).default("AE"),
   country_name: z.string().min(1).default("الإمارات"),
@@ -22,7 +22,10 @@ const messageSchema = z.object({
   ),
   emirate: z.string().min(1),
   voice_url: z.string().url().optional(),
-});
+}).refine(
+  (data) => (data.text && data.text.length >= 1) || data.voice_url,
+  { message: "Either a text message or a voice recording is required" }
+);
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   const ipHash = createHash("sha256").update(ip).digest("hex");
 
-  const sanitizedText = parsed.data.text.replace(/<[^>]*>/g, "");
+  const sanitizedText = parsed.data.text ? parsed.data.text.replace(/<[^>]*>/g, "") : "";
 
   const supabase = createAdminClient();
 

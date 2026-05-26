@@ -31,13 +31,15 @@ export async function Footer() {
                 height={48}
                 className="object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
               />
-              <img
-                src="/media/al-nahyan-center.png"
-                alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
-                width={48}
-                height={48}
-                className="object-contain"
-              />
+              <div className="rounded-lg light-mode:bg-[#0A1E34] p-0.5">
+                <img
+                  src="/media/al-nahyan-center-white.png"
+                  alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
+                  width={44}
+                  height={44}
+                  className="object-contain"
+                />
+              </div>
             </div>
             <h2 className="font-sans font-bold text-xl text-[var(--gold)] mb-2">{t("siteName")}</h2>
             <p className="text-[var(--muted)] font-sans font-bold">{t("nationalProject")}</p>

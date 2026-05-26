@@ -26,6 +26,7 @@ export function Navbar() {
     { href: "/halloffame", label: t("hallOfFame") },
     { href: "/partners", label: t("partners") },
     { href: "/guide", label: t("guide") },
+    { href: "/sheikha-shama", label: t("sheikhaShama") },
   ];
 
   useEffect(() => {
@@ -51,13 +52,15 @@ export function Navbar() {
               height={52}
               className="object-contain transform group-hover:scale-105 transition-transform drop-shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
             />
-            <img
-              src="/media/al-nahyan-center.png"
-              alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
-              width={52}
-              height={52}
-              className="object-contain transform group-hover:scale-105 transition-transform"
-            />
+            <div className="rounded-lg light-mode:bg-[#0A1E34] p-0.5 transform group-hover:scale-105 transition-transform">
+              <img
+                src="/media/al-nahyan-center-white.png"
+                alt="مركز الشيخ محمد بن خالد آل نهيان الثقافي"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
+            </div>
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">
