@@ -530,7 +530,7 @@ function StoryVideoSection() {
               playsInline
               onClick={togglePlay}
             >
-              <source src="/media/story.mp4" type="video/mp4" />
+              <source src="/media/story-new.mp4" type="video/mp4" />
             </video>
 
             {/* Center play overlay — initial state or ended */}

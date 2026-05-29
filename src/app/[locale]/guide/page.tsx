@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Download, Globe, Mic, Send, User, Users, MessageSquare, Award } from "lucide-react";
+import { Download, Globe, Mic, Send, User, Users, MessageSquare, Award, Play, Pause } from "lucide-react";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { useTranslations, useLocale } from "next-intl";
@@ -30,6 +30,8 @@ export default function GuidePage() {
   const t = useTranslations("guide");
   const locale = useLocale();
   const [downloading, setDownloading] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const guideVideoRef = useRef<HTMLVideoElement>(null);
 
   const handleDownload = async () => {
     setDownloading(true);
@@ -73,6 +75,54 @@ export default function GuidePage() {
             <Download size={22} />
             {downloading ? t("generating") : t("downloadPdf")}
           </motion.button>
+        </section>
+
+        {/* Video */}
+        <section className="max-w-3xl mx-auto mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative rounded-2xl overflow-hidden border border-[var(--border)] shadow-lg"
+          >
+            <video
+              ref={guideVideoRef}
+              className="w-full aspect-video object-contain bg-black cursor-pointer"
+              poster="/media/logo.jpeg"
+              preload="none"
+              playsInline
+              onClick={() => {
+                if (guideVideoRef.current) {
+                  if (guideVideoRef.current.paused) {
+                    guideVideoRef.current.play();
+                    setIsVideoPlaying(true);
+                  } else {
+                    guideVideoRef.current.pause();
+                    setIsVideoPlaying(false);
+                  }
+                }
+              }}
+              onEnded={() => setIsVideoPlaying(false)}
+            >
+              <source src="/media/story.mp4" type="video/mp4" />
+            </video>
+            {!isVideoPlaying && (
+              <button
+                onClick={() => {
+                  if (guideVideoRef.current) {
+                    guideVideoRef.current.play();
+                    setIsVideoPlaying(true);
+                  }
+                }}
+                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
+              >
+                <div className="w-16 h-16 rounded-full bg-[var(--gold)] flex items-center justify-center shadow-[var(--glow-gold)]">
+                  <Play size={28} className="text-[var(--bg-deep)] ms-1" />
+                </div>
+              </button>
+            )}
+          </motion.div>
         </section>
 
         {/* Steps */}
