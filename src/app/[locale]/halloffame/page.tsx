@@ -1,116 +1,320 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, MessageSquareText, Share2, Building2, Trophy } from "lucide-react";
 import { BadgePill } from "@/components/shared/BadgePill";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 import { useTranslations, useLocale } from "next-intl";
+import { ORG_CATEGORIES } from "@/data/organizations";
+
+interface OrgRow {
+  rank: number;
+  name: string;
+  category: string;
+  messages: number;
+  shares: number;
+  score: number;
+  badge: string;
+}
 
 export default function HallOfFame() {
   const t = useTranslations("hallOfFame");
   const locale = useLocale();
-  const isRtl = locale === 'ar';
-  
+  const isRtl = locale === "ar";
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [contributors, setContributors] = useState<any[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [organizations, setOrganizations] = useState<OrgRow[]>([]);
 
   useEffect(() => {
-    fetch("/api/contributors").then(r => r.json()).then(setContributors).catch(() => {});
+    fetch("/api/organizations")
+      .then((r) => r.json())
+      .then((d) => setOrganizations(Array.isArray(d) ? d : []))
+      .catch(() => {});
   }, []);
 
-  const top3 = contributors.slice(0, 3);
-  const rest = contributors.slice(3).filter((c: any) => c.name.includes(searchTerm));
+  const categoryLabel = (id: string) => {
+    if (id === "other") return t("categoryOther");
+    const c = ORG_CATEGORIES.find((x) => x.id === id);
+    return c ? (isRtl ? c.name_ar : c.name_en) : id;
+  };
 
-  const podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
-  const heights = [140, 180, 110];
-  const glows = ["#9EA2A9", "var(--gold)", "#CD7F32"];
+  const totals = useMemo(
+    () => ({
+      orgs: organizations.length,
+      messages: organizations.reduce((s, o) => s + o.messages, 0),
+      shares: organizations.reduce((s, o) => s + o.shares, 0),
+    }),
+    [organizations]
+  );
+
+  const filtered = useMemo(
+    () =>
+      organizations.filter(
+        (o) =>
+          (!categoryFilter || o.category === categoryFilter) &&
+          (!searchTerm || o.name?.includes(searchTerm))
+      ),
+    [organizations, categoryFilter, searchTerm]
+  );
+
+  const topSharers = useMemo(
+    () =>
+      [...organizations]
+        .sort((a, b) => b.shares - a.shares || b.messages - a.messages)
+        .slice(0, 3),
+    [organizations]
+  );
+
+  const medals = ["🥇", "🥈", "🥉"];
+  const glows = ["var(--gold)", "#C0C5CE", "#CD7F32"];
 
   return (
     <div className="min-h-screen bg-[var(--bg-deep)] relative pb-20" dir="auto">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(203,163,68,0.08)_0%,transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(203,163,68,0.10)_0%,transparent_55%)] pointer-events-none" />
       <ShamsaPattern className="opacity-5" />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="text-center mb-16">
-          <h1 className="font-sans font-black text-3xl sm:text-5xl md:text-6xl text-[var(--gold)] mb-4 drop-shadow-[var(--glow-gold)]">{t("heroTitle")}</h1>
-          <p className="text-[var(--muted-light)] text-lg">{t("heroDesc")}</p>
+        {/* Hero */}
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 120, delay: 0.1 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--gold-dim)] border border-[var(--gold-dim)] mb-5"
+          >
+            <Trophy className="w-8 h-8 text-[var(--gold)]" />
+          </motion.div>
+          <h1 className="font-sans font-black text-3xl sm:text-5xl md:text-6xl text-[var(--gold)] mb-4 drop-shadow-[var(--glow-gold)]">
+            {t("orgHeroTitle")}
+          </h1>
+          <p className="text-[var(--muted-light)] text-base sm:text-lg max-w-2xl mx-auto">{t("heroDescOrg")}</p>
         </div>
 
-        {podiumOrder.length >= 3 && (
-          <div className="flex items-end justify-center gap-2 md:gap-6 mb-24 h-[300px]" dir="ltr">
-            {podiumOrder.map((user: any, i: number) => {
-              const isFirst = i === 1;
-              return (
-                <motion.div key={user.rank} initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: isFirst ? 0 : 0.2, type: "spring", stiffness: 50 }} className="flex flex-col items-center relative" style={{ zIndex: isFirst ? 10 : 5 }}>
-                  {isFirst && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6 }} className="absolute -top-10 text-3xl animate-bounce">👑</motion.div>}
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[var(--surface-2)] border-2 flex items-center justify-center text-xl font-bold mb-4 shadow-lg overflow-hidden relative" style={{ borderColor: glows[i], boxShadow: `0 0 20px ${glows[i]}40` }}>
-                    {user.name.charAt(0)}
-                    {isFirst && <div className="absolute inset-0 bg-white/20 animate-pulse mix-blend-overlay"></div>}
-                  </div>
-                  <div className="text-center mb-2 px-1">
-                    <div className="font-sans font-bold text-[var(--white)] text-xs sm:text-sm truncate w-20 sm:w-24">{user.name}</div>
-                    <div className="font-mono text-[var(--gold)] text-[10px] sm:text-xs text-center justify-center flex gap-1" dir={isRtl ? "rtl" : "ltr"}><span dir="ltr">{user.messages}</span> {t("messageLabel")}</div>
-                  </div>
-                  <div className="w-24 md:w-32 rounded-t-lg relative flex items-center justify-center overflow-hidden border-t border-x" style={{ height: `${heights[i]}px`, background: `linear-gradient(to top, var(--card-glass-deep), ${glows[i]}20)`, borderColor: `${glows[i]}40` }}>
-                    <span className="font-mono font-black text-4xl md:text-5xl opacity-40" style={{ color: glows[i] }}>{user.rank}</span>
-                    <div className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: glows[i] }}></div>
-                  </div>
-                </motion.div>
-              );
-            })}
+        {/* Summary stats */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-3xl mx-auto mb-16">
+          {[
+            { icon: Building2, value: totals.orgs, label: t("statOrgs") },
+            { icon: MessageSquareText, value: totals.messages, label: t("statMessages") },
+            { icon: Share2, value: totals.shares, label: t("statShares") },
+          ].map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + i * 0.1 }}
+              className="bg-[var(--card-glass)] backdrop-blur-[16px] border border-[var(--gold-dim)] rounded-2xl p-4 sm:p-6 text-center"
+            >
+              <s.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--gold)] mx-auto mb-2" />
+              <div className="font-mono font-black text-2xl sm:text-3xl text-[var(--white)]" dir="ltr">
+                {s.value.toLocaleString("en-US")}
+              </div>
+              <div className="text-[var(--muted)] text-xs sm:text-sm mt-1">{s.label}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Top sharing champions */}
+        {topSharers.length > 0 && (
+          <div className="max-w-5xl mx-auto mb-24">
+            <div className="text-center mb-10">
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 120 }}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-[var(--gold-dim)] border border-[var(--gold-dim)] mb-4"
+              >
+                <Share2 className="w-4 h-4 text-[var(--gold)]" />
+                <span className="text-[var(--gold)] font-bold text-sm tracking-wide">{t("championsBadge")}</span>
+              </motion.div>
+              <h2 className="font-sans font-black text-2xl sm:text-4xl text-[var(--white)] mb-2">
+                {t("championsTitle")}
+              </h2>
+              <p className="text-[var(--muted-light)] text-sm sm:text-base max-w-xl mx-auto">
+                {t("championsSubtitle")}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:items-end">
+              {topSharers.map((org, i) => {
+                const isFirst = i === 0;
+                return (
+                  <motion.div
+                    key={org.rank}
+                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.6, delay: i * 0.12, type: "spring", stiffness: 70 }}
+                    className={`relative rounded-3xl border p-6 text-center overflow-hidden backdrop-blur-[16px] ${
+                      isFirst ? "sm:order-2 sm:-mt-6" : i === 1 ? "sm:order-1" : "sm:order-3"
+                    }`}
+                    style={{
+                      borderColor: `${glows[i]}66`,
+                      background: `linear-gradient(to bottom, ${glows[i]}1f, var(--card-glass-deep))`,
+                      boxShadow: `0 8px 40px ${glows[i]}26`,
+                    }}
+                  >
+                    {isFirst && (
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl animate-bounce">👑</div>
+                    )}
+                    <div
+                      className="absolute inset-x-0 top-0 h-1.5"
+                      style={{ backgroundColor: glows[i] }}
+                    />
+                    <div className="text-4xl mb-3 mt-2">{medals[i]}</div>
+                    <div
+                      className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-2)] border-2 flex items-center justify-center mb-4 relative overflow-hidden"
+                      style={{ borderColor: glows[i], boxShadow: `0 0 20px ${glows[i]}40` }}
+                    >
+                      <Building2 className="w-8 h-8" style={{ color: glows[i] }} />
+                      {isFirst && <div className="absolute inset-0 bg-white/20 animate-pulse mix-blend-overlay" />}
+                    </div>
+                    <div className="font-sans font-bold text-[var(--white)] text-base sm:text-lg mb-1 px-1 truncate">
+                      {org.name}
+                    </div>
+                    <div className="text-[var(--muted)] text-xs mb-4 truncate">{categoryLabel(org.category)}</div>
+                    <div
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl"
+                      style={{ backgroundColor: `${glows[i]}1f` }}
+                    >
+                      <Share2 className="w-5 h-5" style={{ color: glows[i] }} />
+                      <span className="font-mono font-black text-3xl" style={{ color: glows[i] }} dir="ltr">
+                        {org.shares.toLocaleString("en-US")}
+                      </span>
+                    </div>
+                    <div className="text-[var(--muted)] text-[11px] mt-2 uppercase tracking-wider">
+                      {t("colShares")}
+                    </div>
+                    <div className="flex items-center justify-center gap-1.5 mt-3 font-mono text-xs text-[var(--gold-light)]">
+                      <MessageSquareText className="w-3.5 h-3.5" />
+                      <span dir="ltr">{org.messages}</span>
+                      <span className="text-[var(--muted)]">{t("colMessages")}</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto">
-          {(["participant", "supporter", "ambassador", "nationalHero"] as const).map((rankKey, i) => {
-            const desc = i === 0 ? t("rankDesc1") : i === 1 ? t("rankDesc10") : i === 2 ? t("rankDesc25") : t("rankDesc50");
-            return (
-              <div key={rankKey} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center flex flex-col items-center justify-center gap-2">
-                <BadgePill rankId={rankKey} />
-                <span className="text-[var(--muted)] text-xs" dir={isRtl ? "rtl" : "ltr"}>{desc}</span>
-              </div>
-            );
-          })}
-        </div>
-
+        {/* Honor roll */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-6 md:p-8 shadow-xl max-w-5xl mx-auto text-start">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 border-b border-[var(--border)] pb-6">
-            <h3 className="font-sans font-bold text-2xl text-[var(--white)]">{t("honorRollTitle")}</h3>
-            <div className="relative w-full md:w-64">
-              <Search className={`absolute top-1/2 -translate-y-1/2 text-[var(--muted)] ${isRtl ? 'left-3' : 'right-3'}`} size={16} />
-              <input type="text" placeholder={t("searchPlaceholder")} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className={`w-full bg-[var(--bg-deep)] border border-[var(--border)] rounded-lg text-[var(--white)] py-2 text-sm focus:outline-none focus:border-[var(--gold)] ${isRtl ? 'pl-10 pr-4' : 'pr-10 pl-4'} text-start`} />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 border-b border-[var(--border)] pb-6">
+            <h3 className="font-sans font-bold text-2xl text-[var(--white)]">{t("orgHonorRollTitle")}</h3>
+            <div className="relative w-full md:w-72">
+              <Search
+                className={`absolute top-1/2 -translate-y-1/2 text-[var(--muted)] ${isRtl ? "left-3" : "right-3"}`}
+                size={16}
+              />
+              <input
+                type="text"
+                placeholder={t("orgSearchPlaceholder")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`w-full bg-[var(--bg-deep)] border border-[var(--border)] rounded-lg text-[var(--white)] py-2 text-sm focus:outline-none focus:border-[var(--gold)] ${
+                  isRtl ? "pl-10 pr-4" : "pr-10 pl-4"
+                } text-start`}
+              />
             </div>
           </div>
-          <div className="flex overflow-x-auto w-full">
-            <table className="w-full text-start">
-              <thead>
-                <tr className="text-[var(--muted)] border-b border-[var(--border)] text-start">
-                  <th className="pb-4 font-normal w-16 text-start">{t("colRank")}</th>
-                  <th className="pb-4 font-normal text-start">{t("colName")}</th>
-                  <th className="pb-4 font-normal text-start">{t("colCountry")}</th>
-                  <th className="pb-4 font-normal text-center">{t("colMessages")}</th>
-                  <th className="pb-4 font-normal text-start">{t("colBadge")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {rest.map((user: any) => (
-                  <tr key={user.rank} className="hover:bg-[var(--gold-dim)] transition-colors group">
-                    <td className="py-4 font-mono text-[var(--muted-light)] text-start">{user.rank}</td>
-                    <td className="py-4 text-start">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[var(--surface-2)] flex items-center justify-center text-xs font-bold text-[var(--gold)] shrink-0">{user.name.charAt(0)}</div>
-                        <span className="font-bold text-[var(--white)] group-hover:text-[var(--gold)] transition-colors whitespace-nowrap">{user.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 text-[var(--white)] text-lg text-start whitespace-nowrap">{isRtl ? user.nationality : (user.nationality_en || user.nationality)} <span className="text-sm text-[var(--muted-light)] ms-1">{isRtl ? user.country : (user.country_en || user.country)}</span></td>
-                    <td className="py-4 text-center font-mono font-bold text-[var(--gold-light)]" dir="ltr">{user.messages}</td>
-                    <td className="py-4 text-start"><BadgePill rankId={user.badge === "💎" ? "nationalHero" : user.badge === "🥇" ? "ambassador" : user.badge === "🥈" ? "supporter" : "participant"} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          {/* Category filter chips */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setCategoryFilter("")}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                !categoryFilter
+                  ? "bg-[var(--gold)] text-[var(--bg-deep)]"
+                  : "bg-[var(--surface-2)] text-[var(--muted-light)] hover:text-[var(--gold)] border border-[var(--border)]"
+              }`}
+            >
+              {t("allCategories")}
+            </button>
+            {ORG_CATEGORIES.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCategoryFilter(c.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  categoryFilter === c.id
+                    ? "bg-[var(--gold)] text-[var(--bg-deep)]"
+                    : "bg-[var(--surface-2)] text-[var(--muted-light)] hover:text-[var(--gold)] border border-[var(--border)]"
+                }`}
+              >
+                {isRtl ? c.name_ar : c.name_en}
+              </button>
+            ))}
+            <button
+              onClick={() => setCategoryFilter("other")}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                categoryFilter === "other"
+                  ? "bg-[var(--gold)] text-[var(--bg-deep)]"
+                  : "bg-[var(--surface-2)] text-[var(--muted-light)] hover:text-[var(--gold)] border border-[var(--border)]"
+              }`}
+            >
+              {t("categoryOther")}
+            </button>
           </div>
+
+          {filtered.length === 0 ? (
+            <div className="py-16 text-center text-[var(--muted)]">
+              <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p>{t("orgEmpty")}</p>
+            </div>
+          ) : (
+            <div className="flex overflow-x-auto w-full">
+              <table className="w-full text-start">
+                <thead>
+                  <tr className="text-[var(--muted)] border-b border-[var(--border)] text-start">
+                    <th className="pb-4 font-normal w-16 text-start">{t("colRank")}</th>
+                    <th className="pb-4 font-normal text-start">{t("colOrganization")}</th>
+                    <th className="pb-4 font-normal text-start">{t("colCategory")}</th>
+                    <th className="pb-4 font-normal text-center">{t("colMessages")}</th>
+                    <th className="pb-4 font-normal text-center">{t("colShares")}</th>
+                    <th className="pb-4 font-normal text-start">{t("colBadge")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {filtered.map((org) => (
+                    <tr key={org.rank} className="hover:bg-[var(--gold-dim)] transition-colors group">
+                      <td className="py-4 font-mono text-[var(--muted-light)] text-start">{org.rank}</td>
+                      <td className="py-4 text-start">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-[var(--surface-2)] flex items-center justify-center text-[var(--gold)] shrink-0">
+                            <Building2 className="w-4 h-4" />
+                          </div>
+                          <span className="font-bold text-[var(--white)] group-hover:text-[var(--gold)] transition-colors whitespace-nowrap">
+                            {org.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-[var(--muted-light)] text-sm text-start whitespace-nowrap">
+                        {categoryLabel(org.category)}
+                      </td>
+                      <td className="py-4 text-center font-mono font-bold text-[var(--gold-light)]" dir="ltr">
+                        {org.messages}
+                      </td>
+                      <td className="py-4 text-center font-mono font-bold text-[var(--muted-light)]" dir="ltr">
+                        {org.shares}
+                      </td>
+                      <td className="py-4 text-start">
+                        <BadgePill
+                          rankId={
+                            org.badge === "💎"
+                              ? "nationalHero"
+                              : org.badge === "🥇"
+                              ? "ambassador"
+                              : org.badge === "🥈"
+                              ? "supporter"
+                              : "participant"
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

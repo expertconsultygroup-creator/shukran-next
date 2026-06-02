@@ -21,6 +21,9 @@ const messageSchema = z.object({
     { message: "Invalid UAE phone number" }
   ),
   emirate: z.string().min(1),
+  sender_type: z.enum(["individual", "organization"]).default("individual"),
+  organization_name: z.string().max(200).optional(),
+  organization_category: z.string().max(50).optional(),
   voice_url: z.string().url().optional(),
 }).refine(
   (data) => (data.text && data.text.length >= 1) || data.voice_url,
@@ -123,6 +126,9 @@ export async function POST(request: NextRequest) {
       category: parsed.data.category,
       phone: parsed.data.phone,
       emirate: parsed.data.emirate,
+      sender_type: parsed.data.sender_type,
+      organization_name: parsed.data.organization_name || null,
+      organization_category: parsed.data.organization_category || null,
       voice_url: parsed.data.voice_url || null,
       ip_hash: ipHash,
       status: "pending",

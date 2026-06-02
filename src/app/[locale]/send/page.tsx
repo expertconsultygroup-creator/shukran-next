@@ -7,8 +7,10 @@ import confetti from "canvas-confetti";
 import { LiveCounter } from "@/components/shared/LiveCounter";
 import { ShamsaPattern } from "@/components/shared/ShamsaPattern";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
+import { OrgPicker } from "@/components/shared/OrgPicker";
 import { useTranslations, useLocale } from "next-intl";
 import { UAE_EMIRATES } from "@/lib/constants";
+import { ORG_CATEGORIES } from "@/data/organizations";
 import { useVoiceRecorder } from "@/hooks/use-voice-recorder";
 import { uploadAudio } from "@/lib/upload-audio";
 import { toast } from "sonner";
@@ -71,6 +73,9 @@ export default function SendMessage() {
     category: "مواطن",
     phone: "",
     emirate: "",
+    senderType: "individual" as "individual" | "organization",
+    organizationCategory: "",
+    organizationName: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,6 +123,11 @@ export default function SendMessage() {
           category: formData.category,
           phone: normalizePhone(formData.phone),
           emirate: formData.emirate,
+          sender_type: formData.senderType,
+          ...(formData.senderType === "organization" && {
+            organization_name: formData.organizationName,
+            organization_category: formData.organizationCategory,
+          }),
           ...(voice_url && { voice_url }),
         }),
       });
@@ -289,6 +299,81 @@ export default function SendMessage() {
                         )}
                       </div>
 
+                      {/* Identity: Individual vs Organization */}
+                      <div>
+                        <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("identityLabel")}</label>
+                        <div className="flex gap-2 sm:gap-3">
+                          {(["individual", "organization"] as const).map(type => (
+                            <button
+                              type="button"
+                              key={type}
+                              onClick={() => setFormData({...formData, senderType: type})}
+                              className={`flex-1 px-4 sm:px-6 py-2.5 rounded-full font-sans font-bold text-sm transition-all ${
+                                formData.senderType === type
+                                  ? 'bg-[var(--gold)] text-[var(--bg-deep)] shadow-[var(--glow-gold)]'
+                                  : 'bg-[var(--surface-2)] text-[var(--muted-light)] hover:bg-[rgba(203,163,68,0.1)] hover:text-[var(--gold)] border border-[var(--border)]'
+                              }`}
+                            >
+                              {type === "individual" ? t("identityIndividual") : t("identityOrganization")}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Organization picker - shown when organization */}
+                      {formData.senderType === "organization" && (
+                        <div className="grid grid-cols-1 gap-4 p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--gold-dim)]">
+                          <div>
+                            <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("orgCategoryLabel")}</label>
+                            <div className="relative">
+                              <select
+                                value={formData.organizationCategory}
+                                onChange={e => setFormData({...formData, organizationCategory: e.target.value, organizationName: ""})}
+                                className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 pe-10 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors appearance-none cursor-pointer"
+                                dir="auto"
+                              >
+                                <option value="" disabled>{t("selectOrgCategory")}</option>
+                                {ORG_CATEGORIES.map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {isRtl ? c.name_ar : c.name_en}
+                                  </option>
+                                ))}
+                                <option value="other">{t("orgCategoryOther")}</option>
+                              </select>
+                              <ChevronDown className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted)] pointer-events-none" />
+                            </div>
+                          </div>
+                          {formData.organizationCategory === "other" ? (
+                            <div>
+                              <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("orgNameLabel")}</label>
+                              <input
+                                type="text"
+                                value={formData.organizationName}
+                                onChange={e => setFormData({...formData, organizationName: e.target.value})}
+                                maxLength={200}
+                                placeholder={t("orgCustomPlaceholder")}
+                                className="w-full bg-[var(--input-glass)] border-none border-b-2 border-[var(--border)] text-[var(--text-on-input)] px-4 py-3 rounded-lg focus:ring-0 focus:outline-none focus:border-[var(--gold)] transition-colors text-start"
+                                dir="auto"
+                              />
+                            </div>
+                          ) : formData.organizationCategory && (
+                            <div>
+                              <label className="block text-[var(--muted)] text-sm mb-2 px-1 text-start">{t("orgNameLabel")}</label>
+                              <OrgPicker
+                                key={formData.organizationCategory}
+                                category={formData.organizationCategory}
+                                value={formData.organizationName}
+                                onChange={(name) => setFormData({...formData, organizationName: name})}
+                                placeholder={t("orgSearchPlaceholder")}
+                                emptyText={t("orgNoResults")}
+                                otherLabel={t("orgOtherOption")}
+                                customPlaceholder={t("orgCustomPlaceholder")}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {/* Emirate & Category side by side on mobile */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
@@ -416,7 +501,7 @@ export default function SendMessage() {
 
                       <button
                         type="submit"
-                        disabled={isSubmitting || !formData.name || !formData.phone || !formData.emirate || !isValidUAELocal(formData.phone) || (messageType === "text" && !formData.message.trim()) || (messageType === "voice" && !recorder.audioBlob) || (messageType === "both" && !formData.message.trim() && !recorder.audioBlob)}
+                        disabled={isSubmitting || !formData.name || !formData.phone || !formData.emirate || !isValidUAELocal(formData.phone) || (formData.senderType === "organization" && !formData.organizationName) || (messageType === "text" && !formData.message.trim()) || (messageType === "voice" && !recorder.audioBlob) || (messageType === "both" && !formData.message.trim() && !recorder.audioBlob)}
                         className="w-full h-12 sm:h-14 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[var(--bg-deep)] font-sans font-bold text-base sm:text-lg shadow-[var(--glow-gold)] hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2 sm:mt-4"
                       >
                         {isSubmitting ? (

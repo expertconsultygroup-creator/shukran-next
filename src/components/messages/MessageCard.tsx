@@ -6,6 +6,7 @@ import { BadgePill } from "@/components/shared/BadgePill";
 import { AudioPlayer } from "@/components/shared/AudioPlayer";
 import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 
 export function MessageCard({ message }: { message: any }) {
   const t = useTranslations("shared");
@@ -13,6 +14,32 @@ export function MessageCard({ message }: { message: any }) {
   const isRtl = locale === 'ar';
   
   const [expanded, setExpanded] = useState(false);
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined"
+      ? `${window.location.origin}/${locale}/messages`
+      : "";
+    const shareData = {
+      title: message.name,
+      text: message.text || "",
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success(t("shareSuccess"));
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success(t("linkCopied"));
+      }
+    } catch {
+      // user cancelled the share sheet — do nothing
+      return;
+    }
+    if (message.id) {
+      fetch(`/api/messages/${message.id}/share`, { method: "POST" }).catch(() => {});
+    }
+  };
 
   const rankColorMap: Record<string, string> = {
     "💎": "transparent",
@@ -89,7 +116,11 @@ export function MessageCard({ message }: { message: any }) {
             {message.display_id || message.id}
           </span>
         </div>
-        <button className="w-8 h-8 rounded-full bg-[var(--surface-2)] flex items-center justify-center text-[var(--muted)] hover:text-[var(--gold)] hover:bg-[var(--gold-dim)] transition-colors">
+        <button
+          onClick={handleShare}
+          aria-label={t("share")}
+          className="w-8 h-8 rounded-full bg-[var(--surface-2)] flex items-center justify-center text-[var(--muted)] hover:text-[var(--gold)] hover:bg-[var(--gold-dim)] transition-colors"
+        >
           <Share2 size={16} />
         </button>
       </div>

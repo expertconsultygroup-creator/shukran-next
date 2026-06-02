@@ -113,7 +113,18 @@
     "micPermissionDenied": "Microphone permission denied",
     "duplicatePhone": "This phone number has already been used to send a message. Each phone number can only be used once.",
     "invalidPhone": "Please enter a valid UAE number — mobile (5X XXX XXXX) or landline (X XXX XXXX)",
-    "phoneHint": "Enter your number after +971"
+    "phoneHint": "Enter your number after +971",
+    "identityLabel": "Sender Identity",
+    "identityIndividual": "Individual",
+    "identityOrganization": "Organization",
+    "orgCategoryLabel": "Organization Type",
+    "selectOrgCategory": "Select organization type",
+    "orgNameLabel": "Organization Name",
+    "orgSearchPlaceholder": "Search for your organization...",
+    "orgNoResults": "No matching organizations",
+    "orgCategoryOther": "Other (not listed)",
+    "orgOtherOption": "Other — my organization is not listed",
+    "orgCustomPlaceholder": "Enter your organization name"
   },
   "messages": {
     "title": "Messages",
@@ -240,7 +251,25 @@
     "colName": "Name",
     "colCountry": "Country",
     "colMessages": "Messages",
-    "colBadge": "Badge"
+    "colBadge": "Badge",
+    "heroDescOrg": "The most active organizations in documenting and sharing gratitude",
+    "tabIndividuals": "Individuals",
+    "tabOrganizations": "Organizations",
+    "colOrganization": "Organization",
+    "colCategory": "Type",
+    "colShares": "Shares",
+    "orgHeroTitle": "Organizations Hall of Fame",
+    "championsBadge": "Top Sharers",
+    "championsTitle": "Sharing Champions",
+    "championsSubtitle": "The three organizations that shared the most gratitude with the nation",
+    "orgHonorRollTitle": "Organizations Honor Roll",
+    "orgSearchPlaceholder": "Search organizations...",
+    "allCategories": "All",
+    "orgEmpty": "No organizations have participated yet",
+    "statOrgs": "Organizations",
+    "statMessages": "Messages",
+    "statShares": "Shares",
+    "categoryOther": "Other"
   },
   "guide": {
     "heroTitle": "How to Send Your Message",
@@ -300,7 +329,10 @@
   "shared": {
     "documentedMessage": "Documented Thank You Message",
     "verified": "Verified",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "share": "Share",
+    "shareSuccess": "Shared successfully",
+    "linkCopied": "Link copied to clipboard"
   },
   "statusPages": {
     "errorTitle": "Error",

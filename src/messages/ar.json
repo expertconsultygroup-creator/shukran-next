@@ -113,7 +113,18 @@
     "micPermissionDenied": "تم رفض إذن الميكروفون",
     "duplicatePhone": "رقم الهاتف هذا مستخدم بالفعل لإرسال رسالة. يمكن استخدام كل رقم هاتف مرة واحدة فقط.",
     "invalidPhone": "يرجى إدخال رقم إماراتي صحيح — جوال (5X XXX XXXX) أو ثابت (X XXX XXXX)",
-    "phoneHint": "أدخل رقمك بعد 971+"
+    "phoneHint": "أدخل رقمك بعد 971+",
+    "identityLabel": "هوية المُرسِل",
+    "identityIndividual": "فرد",
+    "identityOrganization": "جهة / مؤسسة",
+    "orgCategoryLabel": "نوع الجهة",
+    "selectOrgCategory": "اختر نوع الجهة",
+    "orgNameLabel": "اسم الجهة",
+    "orgSearchPlaceholder": "ابحث عن جهتك...",
+    "orgNoResults": "لا توجد جهات مطابقة",
+    "orgCategoryOther": "أخرى (غير مدرجة)",
+    "orgOtherOption": "أخرى — جهتي غير مدرجة في القائمة",
+    "orgCustomPlaceholder": "اكتب اسم جهتك"
   },
   "messages": {
     "title": "الرسائل",
@@ -240,7 +251,25 @@
     "colName": "الاسم",
     "colCountry": "الدولة",
     "colMessages": "الرسائل",
-    "colBadge": "الشارة"
+    "colBadge": "الشارة",
+    "heroDescOrg": "الجهات الأكثر تفاعلاً في توثيق ومشاركة رسائل الشكر",
+    "tabIndividuals": "الأفراد",
+    "tabOrganizations": "الجهات",
+    "colOrganization": "الجهة",
+    "colCategory": "النوع",
+    "colShares": "المشاركات",
+    "orgHeroTitle": "قائمة شرف الجهات",
+    "championsBadge": "الأكثر مشاركة",
+    "championsTitle": "أبطال المشاركة",
+    "championsSubtitle": "الجهات الثلاث الأكثر مشاركة لرسائل الشكر مع الوطن",
+    "orgHonorRollTitle": "لوحة شرف الجهات",
+    "orgSearchPlaceholder": "ابحث عن جهة...",
+    "allCategories": "الكل",
+    "orgEmpty": "لم تشارك أي جهة بعد",
+    "statOrgs": "الجهات",
+    "statMessages": "الرسائل",
+    "statShares": "المشاركات",
+    "categoryOther": "أخرى"
   },
   "guide": {
     "heroTitle": "كيف ترسل رسالتك",
@@ -300,7 +329,10 @@
   "shared": {
     "documentedMessage": "رسالة شكر موثقة",
     "verified": "موثق",
-    "readMore": "اقرأ المزيد ←"
+    "readMore": "اقرأ المزيد ←",
+    "share": "مشاركة",
+    "shareSuccess": "تمت المشاركة بنجاح",
+    "linkCopied": "تم نسخ الرابط"
   },
   "statusPages": {
     "errorTitle": "خطأ",
